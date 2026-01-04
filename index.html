@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="ko">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -126,13 +125,12 @@
       </div>
 
       <!-- KOSPI -->
-  <div class="card">
-  <div class="card-header">
-    <span>코스피 (data.go.kr)</span>
-    <span id="kospiLast" class="muted"></span>
+<div class="card">
+  <div class="title">코스피 (data.go.kr) <span id="kospiLast"></span></div>
+  <div style="height:260px; padding:10px 12px;">
+    <canvas id="kospiChart"></canvas>
+    <div id="kospiMeta" style="margin-top:10px; font-size:13px; opacity:.8;"></div>
   </div>
-  <canvas id="kospiChart" height="120"></canvas>
-  <div id="kospiMeta" class="muted" style="padding:10px 14px 14px;"></div>
 </div>
 
 
@@ -381,54 +379,60 @@ async function drawVix() {
 }
 drawVix();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 async function renderKospi() {
-  const [kospiRes, metaRes] = await Promise.all([
-    fetch('./data/kospi.json', {cache:'no-store'}),
-    fetch('./data/meta.json', {cache:'no-store'})
-  ]);
+  const lastEl = document.getElementById("kospiLast");
+  const metaEl = document.getElementById("kospiMeta");
+  const canvas = document.getElementById("kospiChart");
 
-  const kospi = await kospiRes.json();
-  const meta = await metaRes.json();
+  try {
+    const kospiRes = await fetch("./data/kospi.json", { cache: "no-store" });
+    if (!kospiRes.ok) throw new Error("kospi.json fetch failed: " + kospiRes.status);
 
-  const labels = kospi.map(x => x.date);
-  const values = kospi.map(x => x.close);
+    const kospi = await kospiRes.json();
+    const series = kospi.series || [];
 
-  document.getElementById('kospiLast').textContent =
-    values.length ? ('최근값: ' + values[values.length - 1].toLocaleString()) : '';
-
-  document.getElementById('kospiMeta').textContent =
-    '업데이트: ' + meta.updatedAt;
-
-  const ctx = document.getElementById('kospiChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'KOSPI',
-        data: values,
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }},
-      scales: {
-        x: { display: false },
-        y: { display: true }
-      }
+    if (!series.length) {
+      metaEl.textContent = "kospi.json series가 비어있습니다.";
+      return;
     }
-  });
+
+    const sliced = series.slice(-180);
+    const labels = sliced.map(x => x.date);
+    const values = sliced.map(x => x.close);
+
+    lastEl.textContent = "최근값(전일): " + values[values.length - 1].toLocaleString();
+    metaEl.textContent = "업데이트: " + kospi.updated;
+
+    new Chart(canvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          tension: 0.25,
+          pointRadius: 0,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { x: { display: false }, y: { display: true } },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+  } catch (e) {
+    metaEl.textContent = "코스피 로딩 실패: " + e.message;
+  }
 }
 
 renderKospi();
-</script>  
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </body>
 </html>
+
 
 
