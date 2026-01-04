@@ -5,117 +5,245 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>실시간 글로벌 경제지표 대시보드</title>
 
+  <!-- Chart.js (한 번만) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <style>
     :root{
-      color-scheme: light;
-      --bg:#f4f6fb;
-      --card:#ffffff;
-      --border:rgba(15,23,42,.10);
-      --text:#0f172a;
-      --muted:rgba(15,23,42,.60);
-      --muted2:rgba(15,23,42,.45);
+      color-scheme: dark;
+
+      /* ✅ 가독성 개선 팔레트(다크지만 '읽히는' 다크) */
+      --bg0:#070a12;
+      --bg1:#0b1020;
+      --card: rgba(255,255,255,.07);
+      --card2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.16);
+
+      --text:#f6f7ff;
+      --muted: rgba(246,247,255,.72);
+
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --info:#60a5fa;
+
+      --shadow: 0 10px 24px rgba(0,0,0,.30);
+      --radius: 16px;
     }
 
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+      color: var(--text);
       background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(99,102,241,.18), transparent 60%),
-        radial-gradient(900px 520px at 90% 0%, rgba(16,185,129,.12), transparent 55%),
-        var(--bg);
-      color:var(--text);
+        radial-gradient(1200px 600px at 30% -20%, rgba(80,120,255,.22), transparent 60%),
+        radial-gradient(1000px 500px at 85% 0%, rgba(0,255,200,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
     }
 
     header{
       padding:16px 16px;
       border-bottom:1px solid var(--border);
       display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
-      background: rgba(255,255,255,.65);
       backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(7,10,18,.55);
     }
     header .left{display:flex; flex-direction:column; gap:6px;}
     header h1{margin:0; font-size:16px; font-weight:900; letter-spacing:-.2px;}
-    header .sub{font-size:12px; color:var(--muted); line-height:1.45;}
+    header .sub{font-size:12px; color: var(--muted); line-height:1.5;}
     header .badge{
-      font-size:12px; padding:7px 10px; border-radius:999px;
+      font-size:12px; padding:8px 10px; border-radius:999px;
       border:1px solid var(--border);
-      background: rgba(255,255,255,.8);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
       white-space:nowrap;
-      color:var(--muted);
     }
 
-    .wrap{max-width:1200px; margin:0 auto; padding:14px 14px 28px;}
-    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px; margin-top:14px;}
+    .wrap{ max-width:1200px; margin:0 auto; padding:14px 14px 28px; }
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; margin-top:14px; }
 
     .card{
       grid-column: span 6;
-      background: var(--card);
+      background: linear-gradient(180deg, var(--card2), var(--card));
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: var(--radius);
       overflow:hidden;
-      box-shadow: 0 10px 24px rgba(15,23,42,.08);
+      box-shadow: var(--shadow);
     }
     .card.big{ grid-column: span 12; }
-
     .title{
-      padding:11px 12px;
+      padding:12px 12px;
       display:flex; justify-content:space-between; align-items:center;
       border-bottom: 1px solid var(--border);
-      font-size:13px; font-weight:900;
+      font-size:13px; font-weight:1000;
     }
     .title span{
       font-weight:800;
-      color:var(--muted);
+      color: var(--muted);
       font-size:12px;
     }
 
-    .chart-wrap{height:260px; padding:10px 12px 12px;}
-    .meta{margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.35;}
+    /* ✅ “가독성 좋은 지표 카드” 구성 */
+    .kpi-top{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      justify-content:space-between;
+      padding:12px 12px 10px;
+    }
+    .kpi-left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 210px;
+    }
+    .kpi-name{
+      font-weight:1000;
+      font-size:14px;
+      letter-spacing:-.2px;
+    }
+    .kpi-value{
+      font-weight:1000;
+      font-size:28px;
+      line-height:1;
+    }
+    .kpi-sub{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+    .kpi-right{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      text-align:right;
+    }
+    .pill-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      font-size:12px;
+      font-weight:900;
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .pill.good{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12); }
+    .pill.warn{ border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.12); }
+    .pill.bad{  border-color: rgba(239,68,68,.35);  background: rgba(239,68,68,.12); }
+    .pill.info{ border-color: rgba(96,165,250,.35); background: rgba(96,165,250,.12); }
+
+    .chart-wrap{
+      height:220px;
+      padding:8px 12px 12px;
+    }
+    .meta{
+      margin-top:8px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    /* ✅ 투자자 체크리스트 그리드 */
+    .check-grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+      padding:12px;
+    }
+    .check-box{
+      grid-column: span 6;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      padding:12px;
+      background: rgba(255,255,255,.05);
+    }
+    .check-box h3{
+      margin:0 0 8px;
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:-.2px;
+    }
+    .check-box ul{
+      margin:0;
+      padding-left:18px;
+      color: var(--muted);
+      font-size:12.5px;
+      line-height:1.55;
+    }
+
+    /* 버튼/토스트 */
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      color: var(--text);
+      padding:7px 10px;
+      border-radius: 12px;
+      font-weight:1000;
+      font-size:12px;
+    }
+    .btn:hover{ background: rgba(255,255,255,.16); }
+    .btn:active{ transform: translateY(1px); }
 
     .note{
       margin-top:12px;
-      font-size:12px; color:var(--muted); line-height:1.55;
+      font-size:12px; color: var(--muted); line-height:1.6;
       padding:12px 12px;
-      border:1px dashed rgba(15,23,42,.18);
+      border:1px dashed rgba(255,255,255,.22);
       border-radius:16px;
-      background: rgba(255,255,255,.8);
-    }
-    .note b{color: rgba(15,23,42,.85);}
-    .note code{
-      background: rgba(15,23,42,.06);
-      padding: 2px 6px;
-      border-radius: 8px;
-      color: rgba(15,23,42,.85);
+      background: rgba(255,255,255,.04);
     }
 
-    @media (max-width:900px){
-      .card{grid-column: span 12;}
+    @media (max-width: 900px){
+      .card{ grid-column: span 12; }
       header{flex-direction:column; gap:10px;}
       header .badge{align-self:flex-start;}
+      .check-box{ grid-column: span 12; }
+      .kpi-top{ flex-direction:column; align-items:flex-start; }
+      .kpi-right{ align-items:flex-start; text-align:left; }
+      .pill-row{ justify-content:flex-start; }
     }
   </style>
 </head>
 
 <body>
-
-  <!-- 상단 티커테이프 (라이트) -->
-  <div class="tradingview-widget-container" style="border-bottom:1px solid var(--border); background: rgba(255,255,255,.85);">
+  <!-- ✅ 상단 티커테이프 -->
+  <div class="tradingview-widget-container" style="border-bottom:1px solid rgba(255,255,255,.10);">
     <div class="tradingview-widget-container__widget"></div>
     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
     {
       "symbols": [
         { "proName": "FX_IDC:USDKRW", "title": "달러/원" },
+
         { "proName": "OANDA:SPX500USD", "title": "S&P 500" },
         { "proName": "NASDAQ:IXIC", "title": "나스닥" },
+
         { "proName": "TVC:USOIL", "title": "WTI" },
         { "proName": "TVC:GOLD", "title": "금" },
         { "proName": "TVC:SILVER", "title": "은" },
+
         { "proName": "CRYPTO:BTCUSD", "title": "BTC" }
       ],
       "showSymbolLogo": true,
-      "isTransparent": false,
+      "isTransparent": true,
       "displayMode": "adaptive",
-      "colorTheme": "light",
+      "colorTheme": "dark",
       "locale": "kr"
     }
     </script>
@@ -125,17 +253,122 @@
     <div class="left">
       <h1>실시간 글로벌 경제지표 대시보드</h1>
       <div class="sub">
-        코스피/코스닥/VIX는 저장 데이터(Chart.js) · 나머지는 TradingView 위젯으로 표시<br/>
-        ※ 일부 심볼은 데이터 제공처에 따라 실시간 또는 지연(10~15분 등)일 수 있어요.
+        ✅ 코스피/코스닥/VIX는 GitHub Actions로 데이터 저장 → Chart.js로 표시<br/>
+        ✅ 나스닥/유가/금/은/BTC는 TradingView 위젯 표시 (일부 지연 가능)
       </div>
     </div>
-    <div class="badge">S&P500 심볼: <b>OANDA:SPX500USD</b> 사용</div>
+    <div class="badge">S&P 500 심볼: OANDA:SPX500USD</div>
   </header>
 
   <div class="wrap">
     <div class="grid">
 
-      <!-- 달러/원 -->
+      <!-- ✅ 시장 신호 요약(가독성 카드) -->
+      <div class="card big">
+        <div class="title">오늘 시장 신호 (KOSPI / KOSDAQ / VIX) <span id="updatedKST">업데이트: -</span></div>
+
+        <div class="check-grid">
+          <div class="check-box" style="grid-column: span 12;">
+            <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="font-weight:1000; font-size:14px;">📍 종합 리스크 모드</div>
+                <div id="oneLinerTop" style="font-size:12.5px; color:var(--muted); line-height:1.55;">
+                  데이터 로딩 중…
+                </div>
+              </div>
+              <div class="pill-row">
+                <span id="riskPill" class="pill info">중립/로딩</span>
+                <span id="trendPill" class="pill info">혼조/로딩</span>
+                <span id="vixPill" class="pill info">VIX/로딩</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ 투자자 체크리스트 (1~4) -->
+        <div class="check-grid">
+          <div class="check-box">
+            <h3>1) 포지션</h3>
+            <ul>
+              <li>Risk-Off면: 추격매수 금지, 현금/방어 비중↑</li>
+              <li>Risk-On이면: 분할 진입, 손절 기준을 먼저 설정</li>
+            </ul>
+          </div>
+          <div class="check-box">
+            <h3>2) 변동성</h3>
+            <ul>
+              <li>VIX 20 이상 또는 급등(>= +3%)이면: 레버리지 자제</li>
+              <li>반대로 안정이면: 뉴스/실적 이벤트 중심으로 선별</li>
+            </ul>
+          </div>
+          <div class="check-box">
+            <h3>3) 타이밍</h3>
+            <ul>
+              <li>전일 대비 + 5일 평균 대비를 같이 보며 과열/과매도 체크</li>
+              <li>급등일수록 ‘분할’이 정답</li>
+            </ul>
+          </div>
+          <div class="check-box">
+            <h3>4) 리스크 관리</h3>
+            <ul>
+              <li>손절: 가격/기간 중 하나는 반드시 정해두기</li>
+              <li>익절: 목표 도달 시 일부라도 실현(심리 방어)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ✅ 자동 콘텐츠 패널 -->
+        <div class="check-grid" style="margin-top:0;">
+          <div class="check-box" style="grid-column: span 12;">
+            <h3 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <span>🧾 자동 콘텐츠 생성기 (복붙용)</span>
+              <span id="autoStatus" style="font-size:12px; opacity:.65;">대기중…</span>
+            </h3>
+
+            <div style="margin-top:10px;">
+              <div style="font-weight:1000; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span>📌 오늘 시장 한 문장</span>
+                <button class="btn" type="button" onclick="copyTextFrom('#autoOneLiner')">복사</button>
+              </div>
+              <div id="autoOneLiner" style="padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:12px; background:rgba(255,255,255,.08); line-height:1.6;">
+                생성 중…
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div style="font-weight:1000; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span>🧲 제목 후보 (후킹/수익화)</span>
+                <button class="btn" type="button" onclick="copyTitles()">전체 복사</button>
+              </div>
+              <div id="autoTitles" style="display:grid; gap:8px;"></div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div style="font-weight:1000; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span>💰 CTA(전환용) 배너 문구</span>
+                <button class="btn" type="button" onclick="copyTextFrom('#autoCTA')">복사</button>
+              </div>
+              <div id="autoCTA" style="padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:12px; background:rgba(99,102,241,.12); line-height:1.6; white-space:pre-line;">
+                생성 중…
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div style="font-weight:1000; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <span>📝 블로그 글 템플릿 (서론-본론-결론)</span>
+                <button class="btn" type="button" onclick="copyTextFrom('#autoBlog')">전체 복사</button>
+              </div>
+              <textarea id="autoBlog" rows="12" style="width:100%; resize:vertical; padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:12px; background:rgba(255,255,255,.08); color:var(--text); line-height:1.6; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono','Courier New', monospace;">생성 중…</textarea>
+              <div style="margin-top:8px; font-size:12px; color:var(--muted); line-height:1.5;">
+                ✅ “[제휴 링크] / [내 글 링크]” 부분만 네 링크로 교체하면 바로 발행 가능.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ 달러/원 -->
       <div class="card">
         <div class="title">달러/원 <span>FX_IDC:USDKRW</span></div>
         <div class="tradingview-widget-container">
@@ -145,45 +378,90 @@
             "symbols": [[ "FX_IDC:USDKRW|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
-            "isTransparent": false
+            "showVolume": false,
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- KOSPI (data.go.kr) -->
-      <div class="card">
-        <div class="title">코스피 (data.go.kr) <span id="kospiLast">로딩...</span></div>
+      <!-- ✅ KOSPI (data.go.kr) -->
+      <div class="card" id="kospiCard">
+        <div class="title">코스피 (data.go.kr) <span id="kospiLastText">로딩…</span></div>
+
+        <div class="kpi-top">
+          <div class="kpi-left">
+            <div class="kpi-name">KOSPI</div>
+            <div class="kpi-value" id="kospiValue">-</div>
+            <div class="kpi-sub" id="kospiSub">전일/5일 평균 기준 신호 생성 중…</div>
+          </div>
+          <div class="kpi-right">
+            <div class="pill-row">
+              <span class="pill info" id="kospiDay">전일: -</span>
+              <span class="pill info" id="kospi5d">5일: -</span>
+            </div>
+            <div class="meta" id="kospiMeta">업데이트: -</div>
+          </div>
+        </div>
+
         <div class="chart-wrap">
           <canvas id="kospiChart"></canvas>
-          <div id="kospiMeta" class="meta"></div>
         </div>
       </div>
 
-      <!-- VIX (FRED) -->
-      <div class="card">
-        <div class="title">빅스(VIX) <span id="vixLast">로딩...</span></div>
+      <!-- ✅ VIX (FRED) -->
+      <div class="card" id="vixCard">
+        <div class="title">빅스(VIX) <span id="vixLastText">로딩…</span></div>
+
+        <div class="kpi-top">
+          <div class="kpi-left">
+            <div class="kpi-name">VIX (FRED: VIXCLS)</div>
+            <div class="kpi-value" id="vixValue">-</div>
+            <div class="kpi-sub" id="vixSub">전일/5일 평균 기준 신호 생성 중…</div>
+          </div>
+          <div class="kpi-right">
+            <div class="pill-row">
+              <span class="pill info" id="vixDay">전일: -</span>
+              <span class="pill info" id="vix5d">5일: -</span>
+            </div>
+            <div class="meta" id="vixMeta">업데이트: -</div>
+          </div>
+        </div>
+
         <div class="chart-wrap">
           <canvas id="vixChart"></canvas>
-          <div id="vixMeta" class="meta"></div>
         </div>
       </div>
 
-      <!-- KOSDAQ (data.go.kr) -->
-      <div class="card">
-        <div class="title">코스닥 (data.go.kr) <span id="kosdaqLast">로딩...</span></div>
+      <!-- ✅ KOSDAQ (data.go.kr) -->
+      <div class="card" id="kosdaqCard">
+        <div class="title">코스닥 (data.go.kr) <span id="kosdaqLastText">로딩…</span></div>
+
+        <div class="kpi-top">
+          <div class="kpi-left">
+            <div class="kpi-name">KOSDAQ</div>
+            <div class="kpi-value" id="kosdaqValue">-</div>
+            <div class="kpi-sub" id="kosdaqSub">전일/5일 평균 기준 신호 생성 중…</div>
+          </div>
+          <div class="kpi-right">
+            <div class="pill-row">
+              <span class="pill info" id="kosdaqDay">전일: -</span>
+              <span class="pill info" id="kosdaq5d">5일: -</span>
+            </div>
+            <div class="meta" id="kosdaqMeta">업데이트: -</div>
+          </div>
+        </div>
+
         <div class="chart-wrap">
           <canvas id="kosdaqChart"></canvas>
-          <div id="kosdaqMeta" class="meta"></div>
         </div>
       </div>
 
-      <!-- NASDAQ -->
+      <!-- ✅ NASDAQ -->
       <div class="card">
         <div class="title">나스닥 종합 <span>NASDAQ:IXIC</span></div>
         <div class="tradingview-widget-container">
@@ -193,18 +471,18 @@
             "symbols": [[ "NASDAQ:IXIC|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
-            "isTransparent": false
+            "showVolume": false,
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- S&P 500 (OANDA) -->
+      <!-- ✅ S&P 500 (해결: OANDA) -->
       <div class="card">
         <div class="title">S&P 500 <span>OANDA:SPX500USD</span></div>
         <div class="tradingview-widget-container">
@@ -214,18 +492,18 @@
             "symbols": [[ "OANDA:SPX500USD|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
-            "isTransparent": false
+            "showVolume": false,
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- WTI -->
+      <!-- ✅ WTI -->
       <div class="card">
         <div class="title">WTI 유가 <span>TVC:USOIL</span></div>
         <div class="tradingview-widget-container">
@@ -235,18 +513,18 @@
             "symbols": [[ "TVC:USOIL|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
-            "isTransparent": false
+            "showVolume": false,
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- GOLD -->
+      <!-- ✅ GOLD -->
       <div class="card">
         <div class="title">금 <span>TVC:GOLD</span></div>
         <div class="tradingview-widget-container">
@@ -256,18 +534,18 @@
             "symbols": [[ "TVC:GOLD|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
             "showVolume": false,
-            "isTransparent": false
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- SILVER -->
+      <!-- ✅ SILVER -->
       <div class="card">
         <div class="title">은 <span>TVC:SILVER</span></div>
         <div class="tradingview-widget-container">
@@ -277,18 +555,18 @@
             "symbols": [[ "TVC:SILVER|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
             "showVolume": false,
-            "isTransparent": false
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- BTC -->
+      <!-- ✅ BTC -->
       <div class="card">
         <div class="title">비트코인 <span>CRYPTO:BTCUSD</span></div>
         <div class="tradingview-widget-container">
@@ -298,39 +576,38 @@
             "symbols": [[ "CRYPTO:BTCUSD|1D" ]],
             "chartOnly": false,
             "width": "100%",
-            "height": 300,
+            "height": 320,
             "locale": "kr",
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "autosize": true,
-            "showVolume": true,
-            "isTransparent": false
+            "showVolume": false,
+            "isTransparent": true
           }
           </script>
         </div>
       </div>
 
-      <!-- 시장 전체 오버뷰 (공란 방지: showChart=false) -->
+      <!-- ✅ 시장 전체 오버뷰 -->
       <div class="card big">
         <div class="title">한 화면 요약(시장 오버뷰) <span>Watchlist</span></div>
-        <div class="tradingview-widget-container" style="height:520px;">
+        <div class="tradingview-widget-container" style="height:560px;">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
           {
-            "colorTheme": "light",
+            "colorTheme": "dark",
             "dateRange": "12M",
-            "showChart": false,
+            "showChart": true,
             "locale": "kr",
             "width": "100%",
-            "height": 520,
-            "isTransparent": false,
+            "height": 560,
+            "isTransparent": true,
             "tabs": [
               {
                 "title": "지수/심리",
                 "symbols": [
-                  { "s": "INDEX:KS11", "d": "KOSPI(참고)" },
                   { "s": "OANDA:SPX500USD", "d": "S&P 500" },
                   { "s": "NASDAQ:IXIC", "d": "NASDAQ" },
-                  { "s": "CBOE:VIX", "d": "VIX(참고)" }
+                  { "s": "FX_IDC:USDKRW", "d": "USD/KRW" }
                 ],
                 "originalTitle": "Indices"
               },
@@ -344,9 +621,8 @@
                 "originalTitle": "Commodities"
               },
               {
-                "title": "FX/크립토",
+                "title": "크립토",
                 "symbols": [
-                  { "s": "FX_IDC:USDKRW", "d": "USD/KRW" },
                   { "s": "CRYPTO:BTCUSD", "d": "BTC/USD" }
                 ],
                 "originalTitle": "Forex"
@@ -360,126 +636,458 @@
     </div>
 
     <div class="note">
-      <b>참고</b><br/>
-      - S&P 500이 안 뜨는 경우가 많아서 <code>SP:SPX</code> 대신 <code>OANDA:SPX500USD</code>로 통일했어요.<br/>
-      - 코스피/코스닥/VIX는 너의 GitHub Actions가 만들어주는 <code>/data/*.json</code>을 Chart.js로 직접 그립니다.
+      <b>표시가 안 뜰 때 팁</b><br/>
+      - S&P 500이 비면: <b>OANDA:SPX500USD</b> / <b>FOREXCOM:SPXUSD</b> 후보로 교체해 테스트<br/>
+      - 코스피/코스닥/VIX는 <code>data/*.json</code>이 최신인지 확인 (Actions가 최근 실행됐는지)<br/>
+      - GitHub Pages는 반영에 수십 초~수 분 걸릴 수 있어요(캐시).
     </div>
   </div>
 
-  <!-- Chart.js: 한 번만 로드 -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
   <script>
-    // ISO 시간을 KST로 예쁘게 표시
-    function formatKST(isoString){
-      try{
-        const d = new Date(isoString);
-        return new Intl.DateTimeFormat("ko-KR", {
-          timeZone: "Asia/Seoul",
-          year: "numeric", month: "2-digit", day: "2-digit",
-          hour: "2-digit", minute: "2-digit",
-          hour12: false
-        }).format(d).replace(/\./g, "-").replace(/\s/g, " ").trim();
-      }catch(e){
-        return isoString || "";
-      }
-    }
+  /* =========================
+     STORE (전역 상태)
+  ========================= */
+  const STORE = {
+    series: {},      // {kospi:[], kosdaq:[], vix:[]}
+    lastMeta: {}     // {kospi:{...}, kosdaq:{...}, vix:{...}}
+  };
 
-    function makeLineChart(canvas, labels, values){
-      return new Chart(canvas, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            data: values,
-            pointRadius: 0,
-            borderWidth: 2,
-            tension: 0.25
-          }]
+  /* =========================
+     Helpers
+  ========================= */
+  function formatKST(isoString){
+    try{
+      const d = new Date(isoString);
+      return new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit",
+        hour12: false
+      }).format(d).replace(/\./g, "-").replace(/\s/g, " ").trim();
+    }catch(e){
+      return isoString || "";
+    }
+  }
+  function fmtPct(x){ return (x>0?"+":"") + x.toFixed(2) + "%"; }
+  function fmtNum(x){ return Number(x).toLocaleString(undefined,{maximumFractionDigits:2}); }
+  function dirWord(p){ return p>0 ? "상승" : p<0 ? "하락" : "보합"; }
+
+  function calcDayDelta(series){
+    if(!Array.isArray(series) || series.length < 2) return null;
+    const last = Number(series[series.length - 1].close);
+    const prev = Number(series[series.length - 2].close);
+    const diff = last - prev;
+    const pct = prev ? (diff / prev) * 100 : 0;
+    return { last, prev, diff, pct };
+  }
+  function calc5DaySignal(series){
+    if(!Array.isArray(series) || series.length < 6) return null; // 오늘+이전 5일
+    const last = Number(series[series.length - 1].close);
+    const last5 = series.slice(-6, -1).map(x => Number(x.close));
+    const avg5 = last5.reduce((a,b)=>a+b,0) / last5.length;
+    const diff = last - avg5;
+    const pct = avg5 ? (diff / avg5) * 100 : 0;
+    return { last, avg5, diff, pct };
+  }
+
+  function pillClassByPct(pct, invert=false){
+    // invert=true면 (VIX처럼 상승이 '나쁨') 반전
+    const x = invert ? -pct : pct;
+    if(x >= 0.5) return "good";
+    if(x <= -0.5) return "bad";
+    return "warn";
+  }
+
+  /* =========================
+     Chart Renderer (공통)
+  ========================= */
+  function makeLineChart(canvas, labels, values){
+    return new Chart(canvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          pointRadius: 0,
+          borderWidth: 2,
+          tension: 0.25
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: { intersect: false, mode: "index" }
         },
-        options: {
-          plugins: {
-            legend: { display: false },
-            tooltip: { intersect: false, mode: "index" }
-          },
-          scales: {
-            x: {
-              display: false,
-              grid: { display: false }
-            },
-            y: {
-              display: true,
-              ticks: { color: "rgba(15,23,42,.70)" },
-              grid: { color: "rgba(15,23,42,.10)" }
-            }
-          },
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-
-    async function renderSeriesChart({jsonPath, canvasId, lastId, metaId, labelText}) {
-      const canvas = document.getElementById(canvasId);
-      const lastEl = document.getElementById(lastId);
-      const metaEl = document.getElementById(metaId);
-
-      try{
-        const res = await fetch(jsonPath, { cache: "no-store" });
-        if(!res.ok) throw new Error(`${jsonPath} fetch failed: ${res.status}`);
-        const j = await res.json();
-
-        // 표준 구조: {symbol, updated, series:[{date, close}]}
-        const series = j.series || [];
-        if(!series.length){
-          lastEl.textContent = "데이터 없음";
-          metaEl.textContent = "";
-          return;
-        }
-
-        const sliced = series.slice(-180);
-        const labels = sliced.map(x => x.date);
-        const values = sliced.map(x => x.close);
-        const last = sliced[sliced.length - 1];
-
-        lastEl.textContent = `최근값(전일): ${Number(last.close).toLocaleString()}`;
-        metaEl.textContent = `업데이트: ${formatKST(j.updated)} (KST)`;
-
-        makeLineChart(canvas, labels, values);
-      }catch(e){
-        lastEl.textContent = "로딩 실패";
-        metaEl.textContent = e.message;
+        scales: {
+          x: { display: false },
+          y: {
+            display: true,
+            ticks: { color: "rgba(246,247,255,.70)" },
+            grid: { color: "rgba(255,255,255,.08)" }
+          }
+        },
+        responsive: true,
+        maintainAspectRatio: false
       }
+    });
+  }
+
+  async function loadSeries(symbolKey, jsonPath){
+    const res = await fetch(jsonPath, { cache:"no-store" });
+    if(!res.ok) throw new Error(`${jsonPath} fetch failed: ${res.status}`);
+    const j = await res.json();
+    const series = j.series || [];
+    STORE.series[symbolKey] = series;
+
+    // 공통 meta (업데이트 시간은 제일 최신으로 상단에 표시)
+    if(j.updated){
+      const kst = formatKST(j.updated);
+      const upEl = document.getElementById("updatedKST");
+      if(upEl) upEl.textContent = `업데이트: ${kst} (KST)`;
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      await renderSeriesChart({
-        jsonPath: "./data/kospi.json",
-        canvasId: "kospiChart",
-        lastId: "kospiLast",
-        metaId: "kospiMeta",
-        labelText: "KOSPI"
+    const day = calcDayDelta(series);
+    const sig5 = calc5DaySignal(series);
+
+    STORE.lastMeta[symbolKey] = {
+      symbol: j.symbol || symbolKey.toUpperCase(),
+      updated: j.updated,
+      lastClose: day?.last ?? (series.at(-1)?.close ?? null),
+      delta: day ? { diff: day.diff, pct: day.pct } : { diff: 0, pct: 0 },
+      avg5: sig5 ? { avg: sig5.avg5, pct: sig5.pct } : null
+    };
+    return { j, series, day, sig5 };
+  }
+
+  function setKpiCardUI(symbolKey, ui){
+    // ui: {valueId, subId, dayId, fiveId, metaId, lastTextId, invert}
+    const meta = STORE.lastMeta[symbolKey];
+    const series = STORE.series[symbolKey] || [];
+
+    const day = meta?.delta;
+    const sig5 = meta?.avg5;
+
+    const lastVal = meta?.lastClose;
+    document.getElementById(ui.valueId).textContent = (lastVal!=null) ? fmtNum(lastVal) : "-";
+
+    const dayText = day ? `${dirWord(day.pct)} ${fmtPct(day.pct)}` : "-";
+    const fiveText = sig5 ? `평균 대비 ${fmtPct(sig5.pct)}` : "데이터 부족";
+
+    const dayEl = document.getElementById(ui.dayId);
+    const fiveEl = document.getElementById(ui.fiveId);
+
+    const dayClass = day ? pillClassByPct(day.pct, ui.invert) : "info";
+    const fiveClass = sig5 ? pillClassByPct(sig5.pct, ui.invert) : "info";
+
+    dayEl.className = `pill ${dayClass}`;
+    dayEl.textContent = `전일: ${dayText}`;
+
+    fiveEl.className = `pill ${fiveClass}`;
+    fiveEl.textContent = `5일: ${fiveText}`;
+
+    const subLine =
+      `전일 대비 ${day ? fmtNum(day.diff) : "-"} (${day ? fmtPct(day.pct) : "-"}) · ` +
+      (sig5 ? `5일 평균 ${fmtNum(sig5.avg)} 대비 ${fmtPct(sig5.pct)}` : "5일 평균 데이터 부족");
+
+    document.getElementById(ui.subId).textContent = subLine;
+    document.getElementById(ui.metaId).textContent = `업데이트: ${formatKST(meta?.updated)} (KST)`;
+    document.getElementById(ui.lastTextId).textContent = (lastVal!=null) ? `최근값: ${fmtNum(lastVal)}` : "로딩 실패";
+
+    // 차트
+    const sliced = series.slice(-180);
+    const labels = sliced.map(x => x.date);
+    const values = sliced.map(x => Number(x.close));
+    const canvas = document.getElementById(ui.canvasId);
+
+    // 기존 차트가 있으면 파괴(리렌더 시 중복 방지)
+    if(canvas._chartInstance){
+      canvas._chartInstance.destroy();
+    }
+    canvas._chartInstance = makeLineChart(canvas, labels, values);
+  }
+
+  /* =========================
+     Top Signals (3개 합산)
+  ========================= */
+  function setSignalPills(){
+    const kp = STORE.lastMeta.kospi;
+    const kd = STORE.lastMeta.kosdaq;
+    const vx = STORE.lastMeta.vix;
+
+    const riskEl = document.getElementById("riskPill");
+    const trendEl = document.getElementById("trendPill");
+    const vixEl = document.getElementById("vixPill");
+    const oneTop = document.getElementById("oneLinerTop");
+
+    // 방향(코스피/코스닥) + 변동성(VIX)
+    const kpPct = kp?.delta?.pct ?? 0;
+    const kdPct = kd?.delta?.pct ?? 0;
+    const vxPct = vx?.delta?.pct ?? 0;
+    const vxVal = vx?.lastClose ?? 0;
+
+    const trendTag =
+      (kpPct > 0 && kdPct > 0) ? "동반 강세" :
+      (kpPct < 0 && kdPct < 0) ? "동반 약세" : "혼조";
+
+    // Risk 판단 (단순 규칙)
+    const vixRisk = (vxVal >= 20) || (vxPct >= 3);
+    const eqWeak = (kpPct < -0.7 && kdPct < -0.7);
+    const eqStrong = (kpPct > 0.7 && kdPct > 0.7);
+
+    let riskMode = "중립/경계";
+    let riskClass = "warn";
+    if(vixRisk || eqWeak){ riskMode = "Risk-Off"; riskClass = "bad"; }
+    else if(eqStrong && !vixRisk){ riskMode = "Risk-On"; riskClass = "good"; }
+
+    riskEl.className = `pill ${riskClass}`;
+    riskEl.textContent = riskMode;
+
+    trendEl.className = `pill ${trendTag.includes("강세") ? "good" : trendTag.includes("약세") ? "bad" : "warn"}`;
+    trendEl.textContent = trendTag;
+
+    vixEl.className = `pill ${vixRisk ? "bad" : "good"}`;
+    vixEl.textContent = `VIX ${vxVal ? vxVal.toFixed(2) : "-"} (${fmtPct(vxPct)})`;
+
+    // 상단 한 줄
+    const vixTag = vixRisk ? "변동성 경계" : "변동성 안정";
+    oneTop.textContent =
+      `오늘은 ${riskMode} 분위기 · ${trendTag}. ` +
+      `KOSPI ${fmtPct(kpPct)}, KOSDAQ ${fmtPct(kdPct)}, VIX ${vxVal ? vxVal.toFixed(2) : "-"}(${fmtPct(vxPct)}) → ${vixTag}`;
+
+    // 자동 콘텐츠도 함께 갱신
+    makeAutoContent();
+  }
+
+  /* =========================
+     Copy helpers + Toast
+  ========================= */
+  async function copyToClipboard(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      toast("복사 완료 ✅");
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      toast("복사 완료 ✅");
+    }
+  }
+  function copyTextFrom(selector){
+    const el = document.querySelector(selector);
+    const text = el ? (el.value ?? el.textContent ?? "") : "";
+    copyToClipboard(text.trim());
+  }
+  function copyTitles(){
+    const box = document.getElementById("autoTitles");
+    if(!box) return;
+    const items = Array.from(box.querySelectorAll("[data-title]")).map(x => x.getAttribute("data-title"));
+    copyToClipboard(items.join("\n"));
+  }
+
+  let _toastTimer = null;
+  function toast(msg){
+    let t = document.getElementById("toast");
+    if(!t){
+      t = document.createElement("div");
+      t.id = "toast";
+      t.style.cssText =
+        "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);" +
+        "padding:10px 12px;border-radius:12px;background:rgba(15,23,42,.88);" +
+        "color:#fff;font-weight:1000;font-size:13px;z-index:9999;opacity:0;" +
+        "transition:opacity .15s ease;border:1px solid rgba(255,255,255,.18)";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = "1";
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(()=> t.style.opacity="0", 900);
+  }
+
+  /* =========================
+     Auto Content Generator
+  ========================= */
+  function makeAutoContent(){
+    const status = document.getElementById("autoStatus");
+    const oneEl = document.getElementById("autoOneLiner");
+    const titlesEl = document.getElementById("autoTitles");
+    const ctaEl = document.getElementById("autoCTA");
+    const blogEl = document.getElementById("autoBlog");
+
+    const kospi = STORE.lastMeta.kospi;
+    const kosdaq = STORE.lastMeta.kosdaq;
+    const vix = STORE.lastMeta.vix;
+
+    if(!kospi || !kosdaq || !vix){
+      if(status) status.textContent = "데이터 로딩중…";
+      return;
+    }
+
+    const riskPill = document.getElementById("riskPill");
+    const riskMode = riskPill?.classList.contains("bad") ? "Risk-Off"
+                   : riskPill?.classList.contains("warn") ? "중립/경계"
+                   : "Risk-On";
+
+    const kpPct = kospi?.delta?.pct ?? 0;
+    const kdPct = kosdaq?.delta?.pct ?? 0;
+    const vxPct = vix?.delta?.pct ?? 0;
+    const vxVal = vix?.lastClose ?? 0;
+
+    const kp5 = kospi?.avg5?.pct ?? null;
+    const kd5 = kosdaq?.avg5?.pct ?? null;
+    const vx5 = vix?.avg5?.pct ?? null;
+
+    const vixRisk = (vxVal >= 20) || (vxPct >= 3);
+    const vixTag = vixRisk ? "변동성 경계" : "변동성 안정";
+    const trendTag =
+      (kpPct > 0 && kdPct > 0) ? "동반 강세" :
+      (kpPct < 0 && kdPct < 0) ? "동반 약세" : "혼조";
+
+    const kp5Tag = (kp5!=null) ? `KOSPI(5일평균 대비 ${fmtPct(kp5)})` : "KOSPI(5일평균 부족)";
+    const kd5Tag = (kd5!=null) ? `KOSDAQ(5일평균 대비 ${fmtPct(kd5)})` : "KOSDAQ(5일평균 부족)";
+    const vx5Tag = (vx5!=null) ? `VIX(5일평균 대비 ${fmtPct(vx5)})` : "VIX(5일평균 부족)";
+
+    const oneLiner =
+      `오늘은 ${riskMode} 분위기 · ${trendTag}. ` +
+      `KOSPI ${fmtPct(kpPct)}, KOSDAQ ${fmtPct(kdPct)}, ` +
+      `VIX ${vxVal ? vxVal.toFixed(2) : "-"} (${fmtPct(vxPct)}) → ${vixTag}. ` +
+      `참고: ${kp5Tag}, ${kd5Tag}, ${vx5Tag}`;
+
+    if(oneEl) oneEl.textContent = oneLiner;
+
+    const hook1 = vixRisk ? "공포지수 경고등" : "변동성 안정";
+    const hook2 =
+      (kpPct < 0 && kdPct < 0) ? "지수 동반 약세" :
+      (kpPct > 0 && kdPct > 0) ? "지수 동반 강세" : "혼조장";
+
+    const titles = [
+      `(${hook1}) 오늘 시장 왜 이러지? KOSPI·KOSDAQ·VIX로 본 투자자 체크리스트`,
+      `KOSPI ${fmtPct(kpPct)} / KOSDAQ ${fmtPct(kdPct)}… 지금은 ‘${riskMode}’일까?`,
+      `${hook2}에서 손실 줄이는 법: 오늘 VIX ${vxVal ? vxVal.toFixed(2) : "-"}가 말해주는 것`,
+      `전일 + 5일 평균까지: 오늘 시장 핵심만 30초 요약 (KOSPI·KOSDAQ·VIX)`
+    ];
+
+    if(titlesEl){
+      titlesEl.innerHTML = titles.map(t => `
+        <div data-title="${t.replace(/"/g,'&quot;')}"
+             style="padding:10px 12px; border:1px solid rgba(255,255,255,.16); border-radius:12px; background:rgba(255,255,255,.08); line-height:1.5;">
+          ${t}
+        </div>
+      `).join("");
+    }
+
+    const cta =
+      `📌 오늘 체크리스트 저장해두세요. (${riskMode})일 땐 ‘추격매수’보다 ‘현금비중/분할/손절’이 수익을 지킵니다.\n` +
+      `👉 [제휴 링크] 변동성 장세 대응템/전략 모음 보기\n` +
+      `👉 [내 글 링크] 오늘 지표 해석 & 대응 시나리오(초보자용)`;
+    if(ctaEl) ctaEl.textContent = cta;
+
+    const kpLast = kospi?.lastClose ?? 0;
+    const kdLast = kosdaq?.lastClose ?? 0;
+
+    const kp5Line = (kospi?.avg5?.avg!=null)
+      ? `- 5일 평균 ${fmtNum(kospi.avg5.avg)} 대비: ${fmtPct(kospi.avg5.pct)}`
+      : `- 5일 평균 대비: 데이터 부족`;
+    const kd5Line = (kosdaq?.avg5?.avg!=null)
+      ? `- 5일 평균 ${fmtNum(kosdaq.avg5.avg)} 대비: ${fmtPct(kosdaq.avg5.pct)}`
+      : `- 5일 평균 대비: 데이터 부족`;
+    const vx5Line = (vix?.avg5?.avg!=null)
+      ? `- 5일 평균 ${fmtNum(vix.avg5.avg)} 대비: ${fmtPct(vix.avg5.pct)}`
+      : `- 5일 평균 대비: 데이터 부족`;
+
+    const blog =
+`[제목] ${titles[0]}
+
+✅ 오늘 시장 한 줄 요약
+${oneLiner}
+
+---
+
+## 1) 서론: 오늘 투자자들이 가장 궁금해하는 것
+- “지금 들어가도 될까?” vs “현금으로 버텨야 할까?”
+- 결론부터 말하면: 오늘은 ${riskMode} 시그널이 우세합니다.
+
+---
+
+## 2) 본론: 지표로 확인하는 시장 컨디션 (전일 + 5일 평균)
+### (1) KOSPI
+- 전일 대비: ${fmtPct(kpPct)} / 현재(최근값): ${fmtNum(kpLast)}
+${kp5Line}
+
+### (2) KOSDAQ
+- 전일 대비: ${fmtPct(kdPct)} / 현재(최근값): ${fmtNum(kdLast)}
+${kd5Line}
+
+### (3) VIX(공포지수)
+- 전일 대비: ${fmtPct(vxPct)} / 최근값: ${vxVal ? vxVal.toFixed(2) : "-"}
+${vx5Line}
+- 해석: ${vixTag} (※ VIX는 전일/지연 데이터일 수 있음)
+
+---
+
+## 3) 결론: 개인 투자자 ‘행동 체크리스트’
+- ✅ 오늘의 모드: ${riskMode}
+- ✅ 1순위: 무리한 추격매수 금지(특히 급등 종목)
+- ✅ 2순위: 분할 매수/분할 매도 계획 세우기
+- ✅ 3순위: 손절 기준(가격/기간)을 “미리” 정하기
+- ✅ 4순위: 변동성 확대 시 현금 비중/헤지 고려
+
+---
+
+## 4) 참고 링크(수익화/전환)
+- 👉 [제휴 링크] 변동성 장세 대응 아이템/전략 모음
+- 👉 [내 글 링크] 오늘 시장 해석 심화 글
+- 👉 [구독/저장 CTA] 매일 1분 요약 업데이트 받기
+
+(면책) 본 글은 정보 제공 목적이며 투자 손익은 본인 책임입니다.
+`;
+    if(blogEl) blogEl.value = blog;
+
+    if(status) status.textContent = "생성 완료 ✅";
+  }
+
+  /* =========================
+     Boot
+  ========================= */
+  async function boot(){
+    try{
+      // ✅ JSON 경로는 현재 repo 구조 기준
+      await loadSeries("kospi", "./data/kospi.json");
+      await loadSeries("vix", "./data/vix.json");
+      await loadSeries("kosdaq", "./data/kosdaq.json");
+
+      // KPI 카드 UI 채우기
+      setKpiCardUI("kospi", {
+        canvasId:"kospiChart", valueId:"kospiValue", subId:"kospiSub",
+        dayId:"kospiDay", fiveId:"kospi5d", metaId:"kospiMeta",
+        lastTextId:"kospiLastText", invert:false
+      });
+      setKpiCardUI("vix", {
+        canvasId:"vixChart", valueId:"vixValue", subId:"vixSub",
+        dayId:"vixDay", fiveId:"vix5d", metaId:"vixMeta",
+        lastTextId:"vixLastText", invert:true
+      });
+      setKpiCardUI("kosdaq", {
+        canvasId:"kosdaqChart", valueId:"kosdaqValue", subId:"kosdaqSub",
+        dayId:"kosdaqDay", fiveId:"kosdaq5d", metaId:"kosdaqMeta",
+        lastTextId:"kosdaqLastText", invert:false
       });
 
-      await renderSeriesChart({
-        jsonPath: "./data/vix.json",
-        canvasId: "vixChart",
-        lastId: "vixLast",
-        metaId: "vixMeta",
-        labelText: "VIX (FRED: VIXCLS)"
-      });
-
-      await renderSeriesChart({
-        jsonPath: "./data/kosdaq.json",
-        canvasId: "kosdaqChart",
-        lastId: "kosdaqLast",
-        metaId: "kosdaqMeta",
-        labelText: "KOSDAQ"
-      });
-    });
+      setSignalPills();
+    }catch(e){
+      console.error(e);
+      document.getElementById("oneLinerTop").textContent = "데이터 로딩 실패: " + e.message;
+      document.getElementById("autoStatus").textContent = "실패";
+    }
+  }
+  document.addEventListener("DOMContentLoaded", boot);
   </script>
 </body>
 </html>
+
+
 
 
 
