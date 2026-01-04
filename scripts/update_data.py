@@ -1,4 +1,7 @@
-import os, json, datetime, requests
+import os
+import json
+import requests
+from datetime import datetime, timezone
 
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -12,7 +15,7 @@ def fetch_vix(days=220):
     out = []
     for line in rows[1:]:
         parts = line.split(",")
-        if len(parts) < 2: 
+        if len(parts) < 2:
             continue
         d, v = parts[0], parts[1].strip()
         if not v or v == ".":
@@ -25,16 +28,11 @@ def fetch_vix(days=220):
 
 
 def fetch_kospi(days=220):
-    # ✅ 네가 받은 서비스의 endpoint 기반
-    # Endpoint: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
-    # 호출 메서드: /getStockMarketIndex (문서에 있음)
     key = os.getenv("DATA_GO_KR_SERVICE_KEY")
     if not key:
         raise RuntimeError("Missing secret env: DATA_GO_KR_SERVICE_KEY")
 
     base = "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex"
-
-    # idxNm 표기가 케이스마다 달라서 후보를 돌림
     candidates = ["KOSPI", "코스피", "코스피 종합", "코스피지수"]
 
     last_error = None
@@ -80,9 +78,9 @@ def fetch_kospi(days=220):
 
         except Exception as e:
             last_error = e
-            continue
 
     raise RuntimeError(f"KOSPI fetch failed: {last_error}")
+
 
 def fetch_kosdaq(days=220):
     key = os.getenv("DATA_GO_KR_SERVICE_KEY")
@@ -90,9 +88,7 @@ def fetch_kosdaq(days=220):
         raise RuntimeError("Missing secret env: DATA_GO_KR_SERVICE_KEY")
 
     base = "https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService/getStockMarketIndex"
-
-    # 코스닥 후보 (표기 케이스 대응)
-    candidates = ["KOSDAQ", "코스닥", "코스닥 종합", "코스닥지수", "KOSDAQ지수"]
+    candidates = ["KOSDAQ", "코스닥", "코스닥 지수", "코스닥종합"]
 
     last_error = None
     for idxNm in candidates:
@@ -114,6 +110,7 @@ def fetch_kosdaq(days=220):
                  .get("items", {})
                  .get("item", [])
             )
+
             if not items:
                 continue
             if not isinstance(items, list):
@@ -137,7 +134,6 @@ def fetch_kosdaq(days=220):
 
         except Exception as e:
             last_error = e
-            continue
 
     raise RuntimeError(f"KOSDAQ fetch failed: {last_error}")
 
@@ -147,18 +143,17 @@ def write(path, payload):
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
 
-from datetime import datetime, timezone
-
 def main():
     now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    vix = fetch_vix_from_fred()             # 이미 있는 함수
+    vix = fetch_vix()          # ✅ 여기만 바뀜
     kospi = fetch_kospi()
     kosdaq = fetch_kosdaq()
 
-    write("data/vix.json",   {"symbol": "VIX",   "updated": now_iso, "series": vix})
-    write("data/kospi.json", {"symbol": "KOSPI", "updated": now_iso, "series": kospi})
-    write("data/kosdaq.json",{"symbol": "KOSDAQ","updated": now_iso, "series": kosdaq})
+    write("data/vix.json",    {"symbol": "VIX",    "updated": now_iso, "series": vix})
+    write("data/kospi.json",  {"symbol": "KOSPI",  "updated": now_iso, "series": kospi})
+    write("data/kosdaq.json", {"symbol": "KOSDAQ", "updated": now_iso, "series": kosdaq})
+
 
 if __name__ == "__main__":
     main()
