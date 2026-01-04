@@ -2,8 +2,6 @@ name: Update market data
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "10 0 * * *"
 
 permissions:
   contents: write
@@ -12,25 +10,28 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      - name: Install deps
+        run: pip install requests
 
-      - run: python scripts/update_data.py
+      - name: Run script
+        run: python scripts/update_data.py
 
-- run: |
-    git config user.name "github-actions"
-    git config user.email "github-actions@github.com"
-
-    if [ -f data/vix.json ]; then
-      git add data/vix.json
-      git commit -m "Update VIX data" || echo "No changes"
-      git push
-    else
-      echo "data/vix.json not found - skip commit"
-    fi
-
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          if [ -f data/vix.json ]; then
+            git add data/vix.json
+            git commit -m "Update VIX data" || echo "No changes"
+            git push
+          else
+            echo "data/vix.json not found - skip commit"
+          fi
