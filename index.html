@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>실시간 글로벌 경제지표 대시보드</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+      background:#0b0f19; color:#e8eaf0;
+    }
+    header{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+    }
+    header .left{display:flex; flex-direction:column; gap:4px;}
+    header h1{margin:0; font-size:16px; font-weight:800;}
+    header .sub{font-size:12px; opacity:.75; line-height:1.35;}
+    header .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      white-space:nowrap;
+    }
+
+    .wrap{ max-width:1200px; margin:0 auto; padding:14px 14px 28px; }
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; margin-top:12px; }
+    .card{
+      grid-column: span 6;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      overflow:hidden;
+    }
+    .card.big{ grid-column: span 12; }
+    .card .title{
+      padding:10px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size:13px; font-weight:800;
+    }
+    .card .title span{ font-weight:700; opacity:.7; }
+    .note{
+      margin-top:12px;
+      font-size:12px; opacity:.75; line-height:1.5;
+      padding:10px 12px;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius:14px;
+      background: rgba(255,255,255,.03);
+    }
+    @media (max-width: 900px){
+      .card{ grid-column: span 12; }
+      header{flex-direction:column; gap:10px;}
+      header .badge{align-self:flex-start;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 티커테이프 -->
+  <div class="tradingview-widget-container" style="border-bottom:1px solid rgba(255,255,255,.08);">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        { "proName": "FX_IDC:USDKRW", "title": "달러/원" },
+
+        { "proName": "INDEX:KS11", "title": "KOSPI" },
+        { "proName": "CBOE:VIX", "title": "VIX" },
+
+        { "proName": "SP:SPX", "title": "S&P 500" },
+        { "proName": "NASDAQ:IXIC", "title": "나스닥" },
+
+        { "proName": "TVC:USOIL", "title": "WTI" },
+        { "proName": "TVC:GOLD", "title": "금" },
+        { "proName": "TVC:SILVER", "title": "은" },
+
+        { "proName": "CRYPTO:BTCUSD", "title": "BTC" }
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "kr"
+    }
+    </script>
+  </div>
+
+  <header>
+    <div class="left">
+      <h1>실시간 글로벌 경제지표 대시보드</h1>
+      <div class="sub">
+        KOSPI / VIX 포함 · 환율/주요지수/원자재/크립토 한 번에 보기<br/>
+        ※ 일부 심볼은 데이터 제공처에 따라 실시간 또는 지연(10~15분 등)일 수 있어요.
+      </div>
+    </div>
+    <div class="badge">KOSPI: INDEX:KS11 · VIX: CBOE:VIX</div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <!-- 달러/원 -->
+      <div class="card">
+        <div class="title">달러/원 <span>FX_IDC:USDKRW</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "FX_IDC:USDKRW|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- KOSPI -->
+      <div class="card">
+        <div class="title">코스피 <span>INDEX:KS11</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "INDEX:KS11|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- VIX -->
+      <div class="card">
+        <div class="title">빅스(VIX) <span>CBOE:VIX</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "CBOE:VIX|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- NASDAQ -->
+      <div class="card">
+        <div class="title">나스닥 종합 <span>NASDAQ:IXIC</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "NASDAQ:IXIC|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- SPX -->
+      <div class="card">
+        <div class="title">S&P 500 <span>SP:SPX</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "SP:SPX|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- WTI -->
+      <div class="card">
+        <div class="title">WTI 유가 <span>TVC:USOIL</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "TVC:USOIL|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- GOLD -->
+      <div class="card">
+        <div class="title">금 <span>TVC:GOLD</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "TVC:GOLD|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- SILVER -->
+      <div class="card">
+        <div class="title">은 <span>TVC:SILVER</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "TVC:SILVER|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- BTC -->
+      <div class="card">
+        <div class="title">비트코인 <span>CRYPTO:BTCUSD</span></div>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+          {
+            "symbols": [[ "CRYPTO:BTCUSD|1D" ]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": 300,
+            "locale": "kr",
+            "colorTheme": "dark",
+            "autosize": true,
+            "showVolume": false,
+            "isTransparent": true
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- 시장 전체 오버뷰 -->
+      <div class="card big">
+        <div class="title">한 화면 요약(시장 오버뷰) <span>Watchlist</span></div>
+        <div class="tradingview-widget-container" style="height:520px;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+          {
+            "colorTheme": "dark",
+            "dateRange": "12M",
+            "showChart": true,
+            "locale": "kr",
+            "width": "100%",
+            "height": 520,
+            "isTransparent": true,
+            "plotLineColorGrowing": "rgba(0,0,0,0)",
+            "plotLineColorFalling": "rgba(0,0,0,0)",
+            "tabs": [
+              {
+                "title": "지수/심리",
+                "symbols": [
+                  { "s": "INDEX:KS11", "d": "KOSPI" },
+                  { "s": "SP:SPX", "d": "S&P 500" },
+                  { "s": "NASDAQ:IXIC", "d": "NASDAQ" },
+                  { "s": "CBOE:VIX", "d": "VIX" }
+                ],
+                "originalTitle": "Indices"
+              },
+              {
+                "title": "원자재",
+                "symbols": [
+                  { "s": "TVC:USOIL", "d": "WTI" },
+                  { "s": "TVC:GOLD", "d": "Gold" },
+                  { "s": "TVC:SILVER", "d": "Silver" }
+                ],
+                "originalTitle": "Commodities"
+              },
+              {
+                "title": "FX/크립토",
+                "symbols": [
+                  { "s": "FX_IDC:USDKRW", "d": "USD/KRW" },
+                  { "s": "CRYPTO:BTCUSD", "d": "BTC/USD" }
+                ],
+                "originalTitle": "Forex"
+              }
+            ]
+          }
+          </script>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <b>심볼이 안 뜰 때(특히 KOSPI)</b><br/>
+      TradingView는 데이터 제공처마다 심볼이 다를 수 있어요. KOSPI가 비어 보이면 아래 후보로 바꿔 테스트해보세요.<br/>
+      - KOSPI 후보: <b>INDEX:KS11</b> (권장) / <b>KRX:KOSPI</b> / <b>INDEX:KOSPI</b><br/>
+      - VIX 후보: <b>CBOE:VIX</b> (권장)<br/>
+      ※ 그래도 안 나오면 “코스피 지수” 대신 <b>EWY(미국 상장 한국 ETF)</b>를 추가해 우회 표시도 가능합니다.
+    </div>
+  </div>
+
+</body>
+</html>
