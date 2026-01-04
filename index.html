@@ -4,121 +4,118 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>실시간 글로벌 경제지표 대시보드</title>
-<style>
-  :root{
-    color-scheme: dark;
 
-    /* 가독성 개선용 컬러 변수 */
-    --bg: #0b1020;
-    --card: rgba(255,255,255,.065);
-    --card-2: rgba(255,255,255,.085);
-    --border: rgba(255,255,255,.14);
-    --text: #f4f6ff;
-    --muted: rgba(244,246,255,.72);
-  }
+  <style>
+    :root{
+      color-scheme: light;
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --border:rgba(15,23,42,.10);
+      --text:#0f172a;
+      --muted:rgba(15,23,42,.60);
+      --muted2:rgba(15,23,42,.45);
+    }
 
-  body{
-    margin:0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
-    background: radial-gradient(1200px 600px at 30% -20%, rgba(80,120,255,.18), transparent 60%),
-                radial-gradient(1000px 500px at 85% 0%, rgba(0,255,200,.10), transparent 55%),
-                var(--bg);
-    color: var(--text);
-  }
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(900px 520px at 90% 0%, rgba(16,185,129,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
 
-  header{
-    padding:16px 16px;
-    border-bottom:1px solid var(--border);
-    display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
-    backdrop-filter: blur(8px);
-  }
-  header .left{display:flex; flex-direction:column; gap:6px;}
-  header h1{margin:0; font-size:16px; font-weight:900; letter-spacing:-.2px;}
-  header .sub{font-size:12px; color: var(--muted); line-height:1.45;}
-  header .badge{
-    font-size:12px; padding:7px 10px; border-radius:999px;
-    border:1px solid var(--border);
-    background: rgba(255,255,255,.06);
-    white-space:nowrap;
-    color: var(--muted);
-  }
+    header{
+      padding:16px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      background: rgba(255,255,255,.65);
+      backdrop-filter: blur(10px);
+    }
+    header .left{display:flex; flex-direction:column; gap:6px;}
+    header h1{margin:0; font-size:16px; font-weight:900; letter-spacing:-.2px;}
+    header .sub{font-size:12px; color:var(--muted); line-height:1.45;}
+    header .badge{
+      font-size:12px; padding:7px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.8);
+      white-space:nowrap;
+      color:var(--muted);
+    }
 
-  .wrap{ max-width:1200px; margin:0 auto; padding:14px 14px 28px; }
-  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; margin-top:14px; }
+    .wrap{max-width:1200px; margin:0 auto; padding:14px 14px 28px;}
+    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px; margin-top:14px;}
 
-  .card{
-    grid-column: span 6;
-    background: linear-gradient(180deg, var(--card-2), var(--card));
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow:hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,.25);
-  }
-  .card.big{ grid-column: span 12; }
+    .card{
+      grid-column: span 6;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow:hidden;
+      box-shadow: 0 10px 24px rgba(15,23,42,.08);
+    }
+    .card.big{ grid-column: span 12; }
 
-  .title{
-    padding:11px 12px;
-    display:flex; justify-content:space-between; align-items:center;
-    border-bottom: 1px solid var(--border);
-    font-size:13px; font-weight:900;
-  }
-  .title span{
-    font-weight:800;
-    color: var(--muted);
-    font-size:12px;
-  }
+    .title{
+      padding:11px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom: 1px solid var(--border);
+      font-size:13px; font-weight:900;
+    }
+    .title span{
+      font-weight:800;
+      color:var(--muted);
+      font-size:12px;
+    }
 
-  .chart-wrap{
-    height:260px;
-    padding:10px 12px 12px;
-  }
-  .meta{
-    margin-top:10px;
-    font-size:12.5px;
-    color: var(--muted);
-    line-height:1.35;
-  }
+    .chart-wrap{height:260px; padding:10px 12px 12px;}
+    .meta{margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.35;}
 
-  .note{
-    margin-top:12px;
-    font-size:12px; color: var(--muted); line-height:1.55;
-    padding:12px 12px;
-    border:1px dashed rgba(255,255,255,.22);
-    border-radius:16px;
-    background: rgba(255,255,255,.04);
-  }
+    .note{
+      margin-top:12px;
+      font-size:12px; color:var(--muted); line-height:1.55;
+      padding:12px 12px;
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius:16px;
+      background: rgba(255,255,255,.8);
+    }
+    .note b{color: rgba(15,23,42,.85);}
+    .note code{
+      background: rgba(15,23,42,.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: rgba(15,23,42,.85);
+    }
 
-  @media (max-width: 900px){
-    .card{ grid-column: span 12; }
-    header{flex-direction:column; gap:10px;}
-    header .badge{align-self:flex-start;}
-  }
-</style>
-
+    @media (max-width:900px){
+      .card{grid-column: span 12;}
+      header{flex-direction:column; gap:10px;}
+      header .badge{align-self:flex-start;}
+    }
+  </style>
 </head>
+
 <body>
 
-  <!-- 상단 티커테이프 -->
-  <div class="tradingview-widget-container" style="border-bottom:1px solid rgba(255,255,255,.08);">
+  <!-- 상단 티커테이프 (라이트) -->
+  <div class="tradingview-widget-container" style="border-bottom:1px solid var(--border); background: rgba(255,255,255,.85);">
     <div class="tradingview-widget-container__widget"></div>
     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
     {
-      "symbols": [    
+      "symbols": [
         { "proName": "FX_IDC:USDKRW", "title": "달러/원" },
-
         { "proName": "OANDA:SPX500USD", "title": "S&P 500" },
         { "proName": "NASDAQ:IXIC", "title": "나스닥" },
-
         { "proName": "TVC:USOIL", "title": "WTI" },
         { "proName": "TVC:GOLD", "title": "금" },
         { "proName": "TVC:SILVER", "title": "은" },
-
         { "proName": "CRYPTO:BTCUSD", "title": "BTC" }
       ],
       "showSymbolLogo": true,
-      "isTransparent": true,
+      "isTransparent": false,
       "displayMode": "adaptive",
-      "colorTheme": "dark",
+      "colorTheme": "light",
       "locale": "kr"
     }
     </script>
@@ -128,11 +125,11 @@
     <div class="left">
       <h1>실시간 글로벌 경제지표 대시보드</h1>
       <div class="sub">
-        KOSPI / VIX 포함 · 환율/주요지수/원자재/크립토 한 번에 보기<br/>
+        코스피/코스닥/VIX는 저장 데이터(Chart.js) · 나머지는 TradingView 위젯으로 표시<br/>
         ※ 일부 심볼은 데이터 제공처에 따라 실시간 또는 지연(10~15분 등)일 수 있어요.
       </div>
     </div>
-    <div class="badge">코스피/코스닥/VIX는 별도 데이터로 표시</div>
+    <div class="badge">S&P500 심볼: <b>OANDA:SPX500USD</b> 사용</div>
   </header>
 
   <div class="wrap">
@@ -150,43 +147,41 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
-            "showVolume": false,
-            "isTransparent": true
+            "showVolume": true,
+            "isTransparent": false
           }
           </script>
         </div>
       </div>
 
-<!-- KOSPI -->
-<div class="card">
-  <div class="title">코스피 (data.go.kr) <span id="kospiLast">로딩...</span></div>
-  <div class="chart-wrap">
-    <canvas id="kospiChart"></canvas>
-    <div id="kospiMeta" class="meta"></div>
-  </div>
-</div>
+      <!-- KOSPI (data.go.kr) -->
+      <div class="card">
+        <div class="title">코스피 (data.go.kr) <span id="kospiLast">로딩...</span></div>
+        <div class="chart-wrap">
+          <canvas id="kospiChart"></canvas>
+          <div id="kospiMeta" class="meta"></div>
+        </div>
+      </div>
 
+      <!-- VIX (FRED) -->
+      <div class="card">
+        <div class="title">빅스(VIX) <span id="vixLast">로딩...</span></div>
+        <div class="chart-wrap">
+          <canvas id="vixChart"></canvas>
+          <div id="vixMeta" class="meta"></div>
+        </div>
+      </div>
 
-<!-- VIX -->
-<div class="card">
-  <div class="title">빅스(VIX) <span id="vixLast">로딩...</span></div>
-  <div class="chart-wrap">
-    <canvas id="vixChart"></canvas>
-    <div id="vixMeta" class="meta"></div>
-  </div>
-</div>
-
-<!-- KOSDAQ -->
-<div class="card">
-  <div class="title">코스닥 (data.go.kr) <span id="kosdaqLast">로딩...</span></div>
-  <div class="chart-wrap">
-    <canvas id="kosdaqChart"></canvas>
-    <div id="kosdaqMeta" class="meta"></div>
-  </div>
-</div>
-
+      <!-- KOSDAQ (data.go.kr) -->
+      <div class="card">
+        <div class="title">코스닥 (data.go.kr) <span id="kosdaqLast">로딩...</span></div>
+        <div class="chart-wrap">
+          <canvas id="kosdaqChart"></canvas>
+          <div id="kosdaqMeta" class="meta"></div>
+        </div>
+      </div>
 
       <!-- NASDAQ -->
       <div class="card">
@@ -200,16 +195,16 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
-            "showVolume": false,
-            "isTransparent": true
+            "showVolume": true,
+            "isTransparent": false
           }
           </script>
         </div>
       </div>
 
-      <!-- SPX -->
+      <!-- S&P 500 (OANDA) -->
       <div class="card">
         <div class="title">S&P 500 <span>OANDA:SPX500USD</span></div>
         <div class="tradingview-widget-container">
@@ -221,10 +216,10 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
-            "showVolume": false,
-            "isTransparent": true
+            "showVolume": true,
+            "isTransparent": false
           }
           </script>
         </div>
@@ -242,10 +237,10 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
-            "showVolume": false,
-            "isTransparent": true
+            "showVolume": true,
+            "isTransparent": false
           }
           </script>
         </div>
@@ -263,10 +258,10 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
             "showVolume": false,
-            "isTransparent": true
+            "isTransparent": false
           }
           </script>
         </div>
@@ -284,10 +279,10 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
             "showVolume": false,
-            "isTransparent": true
+            "isTransparent": false
           }
           </script>
         </div>
@@ -305,39 +300,37 @@
             "width": "100%",
             "height": 300,
             "locale": "kr",
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "autosize": true,
-            "showVolume": false,
-            "isTransparent": true
+            "showVolume": true,
+            "isTransparent": false
           }
           </script>
         </div>
       </div>
 
-      <!-- 시장 전체 오버뷰 -->
+      <!-- 시장 전체 오버뷰 (공란 방지: showChart=false) -->
       <div class="card big">
         <div class="title">한 화면 요약(시장 오버뷰) <span>Watchlist</span></div>
         <div class="tradingview-widget-container" style="height:520px;">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
           {
-            "colorTheme": "dark",
+            "colorTheme": "light",
             "dateRange": "12M",
             "showChart": false,
             "locale": "kr",
             "width": "100%",
             "height": 520,
-            "isTransparent": true,
-            "plotLineColorGrowing": "rgba(0,0,0,0)",
-            "plotLineColorFalling": "rgba(0,0,0,0)",
+            "isTransparent": false,
             "tabs": [
               {
                 "title": "지수/심리",
                 "symbols": [
-                  { "s": "INDEX:KS11", "d": "KOSPI" },
+                  { "s": "INDEX:KS11", "d": "KOSPI(참고)" },
                   { "s": "OANDA:SPX500USD", "d": "S&P 500" },
                   { "s": "NASDAQ:IXIC", "d": "NASDAQ" },
-                  { "s": "CBOE:VIX", "d": "VIX" }
+                  { "s": "CBOE:VIX", "d": "VIX(참고)" }
                 ],
                 "originalTitle": "Indices"
               },
@@ -367,62 +360,37 @@
     </div>
 
     <div class="note">
-      <b>심볼이 안 뜰 때(특히 KOSPI)</b><br/>
-      TradingView는 데이터 제공처마다 심볼이 다를 수 있어요. KOSPI가 비어 보이면 아래 후보로 바꿔 테스트해보세요.<br/>
-      - KOSPI 후보: <b>INDEX:KS11</b> (권장) / <b>KRX:KOSPI</b> / <b>INDEX:KOSPI</b><br/>
-      - VIX 후보: <b>CBOE:VIX</b> (권장)<br/>
-      ※ 그래도 안 나오면 “코스피 지수” 대신 <b>EWY(미국 상장 한국 ETF)</b>를 추가해 우회 표시도 가능합니다.
+      <b>참고</b><br/>
+      - S&P 500이 안 뜨는 경우가 많아서 <code>SP:SPX</code> 대신 <code>OANDA:SPX500USD</code>로 통일했어요.<br/>
+      - 코스피/코스닥/VIX는 너의 GitHub Actions가 만들어주는 <code>/data/*.json</code>을 Chart.js로 직접 그립니다.
     </div>
   </div>
 
-<script>
-  // ISO 시간을 KST로 예쁘게 표시
-  function formatKST(isoString){
-    try{
-      const d = new Date(isoString);
-      return new Intl.DateTimeFormat("ko-KR", {
-        timeZone: "Asia/Seoul",
-        year: "numeric", month: "2-digit", day: "2-digit",
-        hour: "2-digit", minute: "2-digit",
-        hour12: false
-      }).format(d).replace(/\./g, "-").replace(/\s/g, " ").trim();
-    }catch(e){
-      return isoString || "";
-    }
-  }
+  <!-- Chart.js: 한 번만 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  async function renderSeriesChart({jsonPath, canvasId, lastId, metaId, labelText}) {
-    const canvas = document.getElementById(canvasId);
-    const lastEl = document.getElementById(lastId);
-    const metaEl = document.getElementById(metaId);
-
-    try{
-      const res = await fetch(jsonPath, { cache: "no-store" });
-      if(!res.ok) throw new Error(`${jsonPath} fetch failed: ${res.status}`);
-      const j = await res.json();
-
-      // 우리가 쓰는 표준 구조: {symbol, updated, series:[{date, close}]}
-      const series = j.series || [];
-      if(!series.length){
-        lastEl.textContent = "데이터 없음";
-        metaEl.textContent = "";
-        return;
+  <script>
+    // ISO 시간을 KST로 예쁘게 표시
+    function formatKST(isoString){
+      try{
+        const d = new Date(isoString);
+        return new Intl.DateTimeFormat("ko-KR", {
+          timeZone: "Asia/Seoul",
+          year: "numeric", month: "2-digit", day: "2-digit",
+          hour: "2-digit", minute: "2-digit",
+          hour12: false
+        }).format(d).replace(/\./g, "-").replace(/\s/g, " ").trim();
+      }catch(e){
+        return isoString || "";
       }
+    }
 
-      const sliced = series.slice(-180);
-      const labels = sliced.map(x => x.date);
-      const values = sliced.map(x => x.close);
-      const last = sliced[sliced.length - 1];
-
-      lastEl.textContent = `최근값(전일): ${Number(last.close).toLocaleString()}`;
-      metaEl.textContent = `업데이트: ${formatKST(j.updated)} (KST)`;
-
-      new Chart(canvas, {
+    function makeLineChart(canvas, labels, values){
+      return new Chart(canvas, {
         type: "line",
         data: {
           labels,
           datasets: [{
-            label: labelText || j.symbol || "",
             data: values,
             pointRadius: 0,
             borderWidth: 2,
@@ -435,53 +403,84 @@
             tooltip: { intersect: false, mode: "index" }
           },
           scales: {
-            x: { display: false },
+            x: {
+              display: false,
+              grid: { display: false }
+            },
             y: {
               display: true,
-              ticks: { color: "rgba(244,246,255,.65)" },
-              grid: { color: "rgba(255,255,255,.08)" }
+              ticks: { color: "rgba(15,23,42,.70)" },
+              grid: { color: "rgba(15,23,42,.10)" }
             }
           },
           responsive: true,
           maintainAspectRatio: false
         }
       });
-    }catch(e){
-      lastEl.textContent = "로딩 실패";
-      metaEl.textContent = e.message;
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    await renderSeriesChart({
-      jsonPath: "./data/kospi.json",
-      canvasId: "kospiChart",
-      lastId: "kospiLast",
-      metaId: "kospiMeta",
-      labelText: "KOSPI"
+    async function renderSeriesChart({jsonPath, canvasId, lastId, metaId, labelText}) {
+      const canvas = document.getElementById(canvasId);
+      const lastEl = document.getElementById(lastId);
+      const metaEl = document.getElementById(metaId);
+
+      try{
+        const res = await fetch(jsonPath, { cache: "no-store" });
+        if(!res.ok) throw new Error(`${jsonPath} fetch failed: ${res.status}`);
+        const j = await res.json();
+
+        // 표준 구조: {symbol, updated, series:[{date, close}]}
+        const series = j.series || [];
+        if(!series.length){
+          lastEl.textContent = "데이터 없음";
+          metaEl.textContent = "";
+          return;
+        }
+
+        const sliced = series.slice(-180);
+        const labels = sliced.map(x => x.date);
+        const values = sliced.map(x => x.close);
+        const last = sliced[sliced.length - 1];
+
+        lastEl.textContent = `최근값(전일): ${Number(last.close).toLocaleString()}`;
+        metaEl.textContent = `업데이트: ${formatKST(j.updated)} (KST)`;
+
+        makeLineChart(canvas, labels, values);
+      }catch(e){
+        lastEl.textContent = "로딩 실패";
+        metaEl.textContent = e.message;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await renderSeriesChart({
+        jsonPath: "./data/kospi.json",
+        canvasId: "kospiChart",
+        lastId: "kospiLast",
+        metaId: "kospiMeta",
+        labelText: "KOSPI"
+      });
+
+      await renderSeriesChart({
+        jsonPath: "./data/vix.json",
+        canvasId: "vixChart",
+        lastId: "vixLast",
+        metaId: "vixMeta",
+        labelText: "VIX (FRED: VIXCLS)"
+      });
+
+      await renderSeriesChart({
+        jsonPath: "./data/kosdaq.json",
+        canvasId: "kosdaqChart",
+        lastId: "kosdaqLast",
+        metaId: "kosdaqMeta",
+        labelText: "KOSDAQ"
+      });
     });
-
-    await renderSeriesChart({
-      jsonPath: "./data/vix.json",
-      canvasId: "vixChart",
-      lastId: "vixLast",
-      metaId: "vixMeta",
-      labelText: "VIX (FRED: VIXCLS)"
-    });
-
-    await renderSeriesChart({
-      jsonPath: "./data/kosdaq.json",
-      canvasId: "kosdaqChart",
-      lastId: "kosdaqLast",
-      metaId: "kosdaqMeta",
-      labelText: "KOSDAQ"
-    });
-  });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </script>
 </body>
 </html>
+
 
 
 
