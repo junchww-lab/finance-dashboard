@@ -4,59 +4,97 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>실시간 글로벌 경제지표 대시보드</title>
-  <style>
-    :root { color-scheme: dark; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
-      background:#0b0f19; color:#e8eaf0;
-    }
-    header{
-      padding:14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
-    }
-    header .left{display:flex; flex-direction:column; gap:4px;}
-    header h1{margin:0; font-size:16px; font-weight:800;}
-    header .sub{font-size:12px; opacity:.75; line-height:1.35;}
-    header .badge{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      white-space:nowrap;
-    }
+<style>
+  :root{
+    color-scheme: dark;
 
-    .wrap{ max-width:1200px; margin:0 auto; padding:14px 14px 28px; }
-    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; margin-top:12px; }
-    .card{
-      grid-column: span 6;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px;
-      overflow:hidden;
-    }
-    .card.big{ grid-column: span 12; }
-    .card .title{
-      padding:10px 12px;
-      display:flex; justify-content:space-between; align-items:center;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      font-size:13px; font-weight:800;
-    }
-    .card .title span{ font-weight:700; opacity:.7; }
-    .note{
-      margin-top:12px;
-      font-size:12px; opacity:.75; line-height:1.5;
-      padding:10px 12px;
-      border:1px dashed rgba(255,255,255,.18);
-      border-radius:14px;
-      background: rgba(255,255,255,.03);
-    }
-    @media (max-width: 900px){
-      .card{ grid-column: span 12; }
-      header{flex-direction:column; gap:10px;}
-      header .badge{align-self:flex-start;}
-    }
-  </style>
+    /* 가독성 개선용 컬러 변수 */
+    --bg: #0b1020;
+    --card: rgba(255,255,255,.065);
+    --card-2: rgba(255,255,255,.085);
+    --border: rgba(255,255,255,.14);
+    --text: #f4f6ff;
+    --muted: rgba(244,246,255,.72);
+  }
+
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+    background: radial-gradient(1200px 600px at 30% -20%, rgba(80,120,255,.18), transparent 60%),
+                radial-gradient(1000px 500px at 85% 0%, rgba(0,255,200,.10), transparent 55%),
+                var(--bg);
+    color: var(--text);
+  }
+
+  header{
+    padding:16px 16px;
+    border-bottom:1px solid var(--border);
+    display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+    backdrop-filter: blur(8px);
+  }
+  header .left{display:flex; flex-direction:column; gap:6px;}
+  header h1{margin:0; font-size:16px; font-weight:900; letter-spacing:-.2px;}
+  header .sub{font-size:12px; color: var(--muted); line-height:1.45;}
+  header .badge{
+    font-size:12px; padding:7px 10px; border-radius:999px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    white-space:nowrap;
+    color: var(--muted);
+  }
+
+  .wrap{ max-width:1200px; margin:0 auto; padding:14px 14px 28px; }
+  .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap:14px; margin-top:14px; }
+
+  .card{
+    grid-column: span 6;
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow:hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  }
+  .card.big{ grid-column: span 12; }
+
+  .title{
+    padding:11px 12px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom: 1px solid var(--border);
+    font-size:13px; font-weight:900;
+  }
+  .title span{
+    font-weight:800;
+    color: var(--muted);
+    font-size:12px;
+  }
+
+  .chart-wrap{
+    height:260px;
+    padding:10px 12px 12px;
+  }
+  .meta{
+    margin-top:10px;
+    font-size:12.5px;
+    color: var(--muted);
+    line-height:1.35;
+  }
+
+  .note{
+    margin-top:12px;
+    font-size:12px; color: var(--muted); line-height:1.55;
+    padding:12px 12px;
+    border:1px dashed rgba(255,255,255,.22);
+    border-radius:16px;
+    background: rgba(255,255,255,.04);
+  }
+
+  @media (max-width: 900px){
+    .card{ grid-column: span 12; }
+    header{flex-direction:column; gap:10px;}
+    header .badge{align-self:flex-start;}
+  }
+</style>
+
 </head>
 <body>
 
@@ -67,9 +105,6 @@
     {
       "symbols": [
         { "proName": "FX_IDC:USDKRW", "title": "달러/원" },
-
-        { "proName": "INDEX:KS11", "title": "KOSPI" },
-        { "proName": "CBOE:VIX", "title": "VIX" },
 
         { "proName": "SP:SPX", "title": "S&P 500" },
         { "proName": "NASDAQ:IXIC", "title": "나스닥" },
@@ -97,7 +132,7 @@
         ※ 일부 심볼은 데이터 제공처에 따라 실시간 또는 지연(10~15분 등)일 수 있어요.
       </div>
     </div>
-    <div class="badge">KOSPI: INDEX:KS11 · VIX: CBOE:VIX</div>
+    <div class="badge">코스피/코스닥/VIX는 별도 데이터로 표시</div>
   </header>
 
   <div class="wrap">
@@ -124,22 +159,31 @@
         </div>
       </div>
 
-      <!-- KOSPI -->
+<!-- KOSPI -->
 <div class="card">
-  <div class="title">코스피 (data.go.kr) <span id="kospiLast"></span></div>
-  <div style="height:260px; padding:10px 12px;">
+  <div class="title">코스피 (data.go.kr) <span id="kospiLast">로딩...</span></div>
+  <div class="chart-wrap">
     <canvas id="kospiChart"></canvas>
-    <div id="kospiMeta" style="margin-top:10px; font-size:13px; opacity:.8;"></div>
+    <div id="kospiMeta" class="meta"></div>
   </div>
 </div>
 
 
-      <!-- VIX -->
+<!-- VIX -->
 <div class="card">
-  <div class="title">빅스(VIX) <span style="opacity:.7;font-size:12px;">(FRED: VIXCLS · 전일 기준)</span></div>
-  <div style="height:260px; padding:10px 12px;">
+  <div class="title">빅스(VIX) <span id="vixLast">로딩...</span></div>
+  <div class="chart-wrap">
     <canvas id="vixChart"></canvas>
-    <div id="vixNote" style="margin-top:10px; font-size:13px; opacity:.8;">데이터 로딩 중...</div>
+    <div id="vixMeta" class="meta"></div>
+  </div>
+</div>
+
+<!-- KOSDAQ -->
+<div class="card">
+  <div class="title">코스닥 (data.go.kr) <span id="kosdaqLast">로딩...</span></div>
+  <div class="chart-wrap">
+    <canvas id="kosdaqChart"></canvas>
+    <div id="kosdaqMeta" class="meta"></div>
   </div>
 </div>
 
@@ -332,107 +376,113 @@
   </div>
 
 <script>
-async function drawVix() {
-  const note = document.getElementById("vixNote");
-  try {
-    const res = await fetch("./data/vix.json", { cache: "no-store" });
-    const j = await res.json();
-    const series = j.series || [];
-
-    if (!series.length) {
-      note.textContent = "vix.json 데이터가 비어있습니다.";
-      return;
+  // ISO 시간을 KST로 예쁘게 표시
+  function formatKST(isoString){
+    try{
+      const d = new Date(isoString);
+      return new Intl.DateTimeFormat("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit",
+        hour12: false
+      }).format(d).replace(/\./g, "-").replace(/\s/g, " ").trim();
+    }catch(e){
+      return isoString || "";
     }
+  }
 
-    // 최근 180개만 표시(너무 길면 느려질 수 있어서)
-    const sliced = series.slice(-180);
-    const labels = sliced.map(x => x.date);
-    const values = sliced.map(x => x.close);
+  async function renderSeriesChart({jsonPath, canvasId, lastId, metaId, labelText}) {
+    const canvas = document.getElementById(canvasId);
+    const lastEl = document.getElementById(lastId);
+    const metaEl = document.getElementById(metaId);
 
-    const last = sliced[sliced.length - 1];
-    note.textContent = `최근값(전일): ${last.close.toLocaleString()} · 업데이트: ${j.updated}`;
+    try{
+      const res = await fetch(jsonPath, { cache: "no-store" });
+      if(!res.ok) throw new Error(`${jsonPath} fetch failed: ${res.status}`);
+      const j = await res.json();
 
-    new Chart(document.getElementById("vixChart"), {
-      type: "line",
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          tension: 0.25,
-          pointRadius: 0,
-          borderWidth: 2
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { display: false },
-          y: { display: true }
+      // 우리가 쓰는 표준 구조: {symbol, updated, series:[{date, close}]}
+      const series = j.series || [];
+      if(!series.length){
+        lastEl.textContent = "데이터 없음";
+        metaEl.textContent = "";
+        return;
+      }
+
+      const sliced = series.slice(-180);
+      const labels = sliced.map(x => x.date);
+      const values = sliced.map(x => x.close);
+      const last = sliced[sliced.length - 1];
+
+      lastEl.textContent = `최근값(전일): ${Number(last.close).toLocaleString()}`;
+      metaEl.textContent = `업데이트: ${formatKST(j.updated)} (KST)`;
+
+      new Chart(canvas, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: labelText || j.symbol || "",
+            data: values,
+            pointRadius: 0,
+            borderWidth: 2,
+            tension: 0.25
+          }]
         },
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    });
-  } catch (e) {
-    note.textContent = "불러오기 실패: " + e.message;
-  }
-}
-drawVix();
-</script>
-<script>
-async function renderKospi() {
-  const lastEl = document.getElementById("kospiLast");
-  const metaEl = document.getElementById("kospiMeta");
-  const canvas = document.getElementById("kospiChart");
-
-  try {
-    const kospiRes = await fetch("./data/kospi.json", { cache: "no-store" });
-    if (!kospiRes.ok) throw new Error("kospi.json fetch failed: " + kospiRes.status);
-
-    const kospi = await kospiRes.json();
-    const series = kospi.series || [];
-
-    if (!series.length) {
-      metaEl.textContent = "kospi.json series가 비어있습니다.";
-      return;
+        options: {
+          plugins: {
+            legend: { display: false },
+            tooltip: { intersect: false, mode: "index" }
+          },
+          scales: {
+            x: { display: false },
+            y: {
+              display: true,
+              ticks: { color: "rgba(244,246,255,.65)" },
+              grid: { color: "rgba(255,255,255,.08)" }
+            }
+          },
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }catch(e){
+      lastEl.textContent = "로딩 실패";
+      metaEl.textContent = e.message;
     }
+  }
 
-    const sliced = series.slice(-180);
-    const labels = sliced.map(x => x.date);
-    const values = sliced.map(x => x.close);
-
-    lastEl.textContent = "최근값(전일): " + values[values.length - 1].toLocaleString();
-    metaEl.textContent = "업데이트: " + kospi.updated;
-
-    new Chart(canvas, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [{
-          data: values,
-          tension: 0.25,
-          pointRadius: 0,
-          borderWidth: 2
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { x: { display: false }, y: { display: true } },
-        responsive: true,
-        maintainAspectRatio: false
-      }
+  document.addEventListener("DOMContentLoaded", async () => {
+    await renderSeriesChart({
+      jsonPath: "./data/kospi.json",
+      canvasId: "kospiChart",
+      lastId: "kospiLast",
+      metaId: "kospiMeta",
+      labelText: "KOSPI"
     });
 
-  } catch (e) {
-    metaEl.textContent = "코스피 로딩 실패: " + e.message;
-  }
-}
+    await renderSeriesChart({
+      jsonPath: "./data/vix.json",
+      canvasId: "vixChart",
+      lastId: "vixLast",
+      metaId: "vixMeta",
+      labelText: "VIX (FRED: VIXCLS)"
+    });
 
-renderKospi();
+    await renderSeriesChart({
+      jsonPath: "./data/kosdaq.json",
+      canvasId: "kosdaqChart",
+      lastId: "kosdaqLast",
+      metaId: "kosdaqMeta",
+      labelText: "KOSDAQ"
+    });
+  });
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </body>
 </html>
+
 
 
 
