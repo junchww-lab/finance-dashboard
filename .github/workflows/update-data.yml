@@ -22,9 +22,15 @@ jobs:
 
       - run: python scripts/update_data.py
 
-      - run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add data/vix.json
-          git commit -m "Update VIX data" || echo "No changes"
-          git push
+- run: |
+    git config user.name "github-actions"
+    git config user.email "github-actions@github.com"
+
+    # ✅ 파일이 있을 때만 add (없으면 에러 안 내고 통과)
+    if [ -f data/vix.json ]; then
+      git add data/vix.json
+      git commit -m "Update VIX data" || echo "No changes"
+      git push
+    else
+      echo "data/vix.json not found - skip commit"
+    fi
