@@ -1260,11 +1260,13 @@
       const kosdaq = STORE.lastMeta.kosdaq;
       const vix = STORE.lastMeta.vix;
       
-  function setSummaryBox(){
+function setSummaryBox(){
   const updEl = document.getElementById("summaryUpdated");
-  const kospi = STORE.lastMeta.kospi;
+  if(!updEl) return;
+
+  const kospi  = STORE.lastMeta.kospi;
   const kosdaq = STORE.lastMeta.kosdaq;
-  const vix = STORE.lastMeta.vix;
+  const vix    = STORE.lastMeta.vix;
 
   const updated = kospi?.updated || kosdaq?.updated || vix?.updated;
   updEl.textContent = updated ? `업데이트: ${formatKST(updated)} (KST)` : "업데이트: -";
@@ -1273,6 +1275,9 @@
     const root = document.getElementById(`sum${prefix}`);
     const valEl = document.getElementById(`sum${prefix}Val`);
     const dEl = document.getElementById(`sum${prefix}Delta`);
+
+    // ✅ ID가 없으면 조용히 종료(에러 방지)
+    if(!root || !valEl || !dEl) return;
 
     if(!meta){
       valEl.textContent = "—";
@@ -1290,16 +1295,19 @@
     root.classList.add(cls);
 
     const arrow = chg > 0 ? "▲" : chg < 0 ? "▼" : "•";
-    const sign = chg > 0 ? "+" : chg < 0 ? "-" : "±";
+    const sign  = chg > 0 ? "+" : chg < 0 ? "-" : "±";
 
     valEl.textContent = Number(last).toLocaleString();
-    dEl.textContent = `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})} (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
+    dEl.textContent =
+      `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})}` +
+      ` (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
   }
 
   fillOne("Kospi", kospi);
   fillOne("Kosdaq", kosdaq);
   fillOne("Vix", vix);
 }
+
 
 
       // 업데이트 표기
@@ -1418,6 +1426,7 @@
 
 </body>
 </html>
+
 
 
 
