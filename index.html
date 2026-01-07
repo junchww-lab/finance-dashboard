@@ -1215,7 +1215,7 @@
       }
     }
 
-    function setSignalPills(){
+  function setSignalPills(){
   const riskPill = document.getElementById("riskPill");
   const flowPill = document.getElementById("flowPill");
   const volPill  = document.getElementById("volPill");
@@ -1230,110 +1230,68 @@
   const kosdaq = STORE.lastMeta.kosdaq;
   const vix = STORE.lastMeta.vix;
 
-  // ... (원래 시그널 계산 로직이 있으면 여기에)
-}
-
-      
-function setSummaryBox(){
-  const updEl = document.getElementById("summaryUpdated");
-  const kospi = STORE.lastMeta.kospi;
-  const kosdaq = STORE.lastMeta.kosdaq;
-  const vix = STORE.lastMeta.vix;
-
+  // 안전장치: 데이터 아직 없으면 표시만 하고 종료
   const updated = kospi?.updated || kosdaq?.updated || vix?.updated;
   if(updEl) updEl.textContent = updated ? `업데이트: ${formatKST(updated)} (KST)` : "업데이트: -";
 
-  function fillOne(prefix, meta){
-    const root = document.getElementById(`sum${prefix}`);
-    const valEl = document.getElementById(`sum${prefix}Val`);
-    const dEl   = document.getElementById(`sum${prefix}Delta`);
-    if(!root || !valEl || !dEl) return;
-
-    if(!meta){
-      valEl.textContent = "—";
-      dEl.textContent = "—";
-      root.classList.remove("pos","neg","flat");
-      return;
-    }
-
-    const last = meta.lastClose;
-    const chg = meta.delta?.chg ?? 0;
-    const pct = meta.delta?.pct ?? 0;
-
-    root.classList.remove("pos","neg","flat");
-    const cls = chg > 0 ? "pos" : chg < 0 ? "neg" : "flat";
-    root.classList.add(cls);
-
-    const arrow = chg > 0 ? "▲" : chg < 0 ? "▼" : "•";
-    const sign  = chg > 0 ? "+" : chg < 0 ? "-" : "±";
-
-    valEl.textContent = Number(last).toLocaleString();
-    dEl.textContent =
-      `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})} (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
+  if(!kospi || !kosdaq || !vix){
+    if(volPill){ volPill.classList.remove("ok","warn","bad"); volPill.classList.add("flat"); }
+    if(flowPill){ flowPill.classList.remove("ok","warn","bad"); flowPill.classList.add("flat"); }
+    if(riskPill){ riskPill.classList.remove("ok","warn","bad"); riskPill.classList.add("flat"); }
+    if(volText) volText.textContent = "데이터 로딩 중…";
+    if(flowText) flowText.textContent = "데이터 로딩 중…";
+    if(riskText) riskText.textContent = "시그널 계산 중…";
+    return;
   }
 
-  fillOne("Kospi", kospi);
-  fillOne("Kosdaq", kosdaq);
-  fillOne("Vix", vix);
+  // 기본값
+  const kospiPct = kospi?.delta?.pct ?? 0;
+  const kosdaqPct = kosdaq?.delta?.pct ?? 0;
+  const vixPct = vix?.delta?.pct ?? 0;
+  const vixVal = vix?.lastClose ?? 0;
+
+  // 1) 변동성(Vol) 시그널
+  volPill.classList.remove("ok","warn","bad");
+  if(vixVal >= 25 || vixPct >= 6){
+    volPill.classList.add("bad");  volText.textContent = `변동성 높음 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
+  }else if(vixVal >= 20 || vixPct >= 3){
+    volPill.classList.add("warn"); volText.textContent = `변동성 경계 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
+  }else{
+    volPill.classList.add("ok");   volText.textContent = `변동성 안정 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
+  }
+
+  // 2) 지수 흐름(Flow) 시그널
+  flowPill.classList.remove("ok","warn","bad");
+  if(kospiPct < -1 && kosdaqPct < -1){
+    flowPill.classList.add("bad"); flowText.textContent = `지수 동반 약세 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
+  }else if(kospiPct < 0 && kosdaqPct < 0){
+    flowPill.classList.add("warn"); flowText.textContent = `지수 약세 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
+  }else{
+    flowPill.classList.add("ok"); flowText.textContent = `지수 양호 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
+  }
+
+  // 3) 종합 리스크 모드
+  riskPill.classList.remove("ok","warn","bad");
+  const volIsBad = volPill.classList.contains("bad");
+  const volIsWarn = volPill.classList.contains("warn");
+  const flowIsBad = flowPill.classList.contains("bad");
+  const flowIsWarn = flowPill.classList.contains("warn");
+
+  if(volIsBad || (volIsWarn && (flowIsWarn || flowIsBad)) || flowIsBad){
+    riskPill.classList.add("bad");
+    riskText.textContent = "Risk-Off 성향: 방어/현금/손절라인 우선";
+  }else if(volIsWarn || flowIsWarn){
+    riskPill.classList.add("warn");
+    riskText.textContent = "중립/경계: 무리한 추격매수 금지, 분할 대응";
+  }else{
+    riskPill.classList.add("ok");
+    riskText.textContent = "Risk-On 성향: 분할매수/리밸런싱 기회 탐색";
+  }
 }
 
 
 
 
-
-      // 업데이트 표기
-      const updated = kospi?.updated || kosdaq?.updated || vix?.updated;
-      updEl.textContent = updated ? `업데이트: ${formatKST(updated)} (KST)` : "업데이트: -";
-
-      // 기본값
-      const kospiPct = kospi?.delta?.pct ?? 0;
-      const kosdaqPct = kosdaq?.delta?.pct ?? 0;
-      const vixPct = vix?.delta?.pct ?? 0;
-      const vixVal = vix?.lastClose ?? 0;
-
-      // 1) 변동성(Vol) 시그널
-      // - VIX 급등(>=+3%) or VIX>=20 => 경계
-      // - VIX 급등(>=+6%) or VIX>=25 => 위험
-      volPill.classList.remove("ok","warn","bad");
-      if(vixVal >= 25 || vixPct >= 6){
-        volPill.classList.add("bad");  volText.textContent = `변동성 높음 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
-      }else if(vixVal >= 20 || vixPct >= 3){
-        volPill.classList.add("warn"); volText.textContent = `변동성 경계 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
-      }else{
-        volPill.classList.add("ok");   volText.textContent = `변동성 안정 (VIX ${vixVal.toFixed(2)}, ${vixPct.toFixed(2)}%)`;
-      }
-
-      // 2) 지수 흐름(Flow) 시그널
-      // - 코스피/코스닥 둘 다 하락이면 경계~위험
-      flowPill.classList.remove("ok","warn","bad");
-      if(kospiPct < -1 && kosdaqPct < -1){
-        flowPill.classList.add("bad"); flowText.textContent = `지수 동반 약세 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
-      }else if(kospiPct < 0 && kosdaqPct < 0){
-        flowPill.classList.add("warn"); flowText.textContent = `지수 약세 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
-      }else{
-        flowPill.classList.add("ok"); flowText.textContent = `지수 양호 (KOSPI ${kospiPct.toFixed(2)}%, KOSDAQ ${kosdaqPct.toFixed(2)}%)`;
-      }
-
-      // 3) 종합 리스크 모드
-      // - 변동성 경계 + 지수 약세 => Risk-Off
-      // - 변동성 안정 + 지수 양호 => Risk-On
-      riskPill.classList.remove("ok","warn","bad");
-      const volIsBad = volPill.classList.contains("bad");
-      const volIsWarn = volPill.classList.contains("warn");
-      const flowIsBad = flowPill.classList.contains("bad");
-      const flowIsWarn = flowPill.classList.contains("warn");
-
-      if(volIsBad || (volIsWarn && (flowIsWarn || flowIsBad)) || flowIsBad){
-        riskPill.classList.add("bad");
-        riskText.textContent = "Risk-Off 성향: 방어/현금/손절라인 우선";
-      }else if(volIsWarn || flowIsWarn){
-        riskPill.classList.add("warn");
-        riskText.textContent = "중립/경계: 무리한 추격매수 금지, 분할 대응";
-      }else{
-        riskPill.classList.add("ok");
-        riskText.textContent = "Risk-On 성향: 분할매수/리밸런싱 기회 탐색";
-      }
-    }
 
     document.addEventListener("DOMContentLoaded", async () => {
       const kospiRes = await renderSeriesChart({
@@ -1386,6 +1344,7 @@ function setSummaryBox(){
       // 체크리스트 시그널
       setSignalPills();
 
+      console.log("STORE.lastMeta", STORE.lastMeta);
       // 한 화면 요약 박스(우리 데이터)
       setSummaryBox();
 
@@ -1396,6 +1355,7 @@ function setSummaryBox(){
 
 </body>
 </html>
+
 
 
 
