@@ -319,32 +319,22 @@
       .kpi{grid-column: span 6;}
       .check-box{ grid-column: span 6; }
     }
-  /* ===== 요약(시장 오버뷰) 대체: 우리 데이터 + 단일호가 ===== */
+/* ===== 요약(시장 오버뷰) 대체: 우리 데이터 + 단일호가 ===== */
 .summary-wrap{
   padding:12px 12px 14px;
 }
-
-.summary-grid{
-  display:grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap:12px;
-}
-
 .summary-box{
-  grid-column: span 12;
   border:1px solid rgba(15,23,42,.10);
   border-radius:14px;
   background: rgba(255,255,255,.85);
   padding:12px 12px;
 }
-
 .summary-list{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   gap:10px;
   margin-top:10px;
 }
-
 .summary-item{
   grid-column: span 4;
   border:1px solid rgba(15,23,42,.10);
@@ -356,28 +346,11 @@
   align-items:flex-start;
   gap:10px;
 }
-.summary-item .left{
-  min-width:0;
-}
-.summary-item .name{
-  font-size:12.5px;
-  font-weight:1000;
-  letter-spacing:-.2px;
-}
-.summary-item .sub{
-  font-size:12px;
-  color: var(--muted);
-  margin-top:4px;
-}
-.summary-item .right{
-  text-align:right;
-  white-space:nowrap;
-}
-.summary-item .val{
-  font-size:16px;
-  font-weight:1000;
-  letter-spacing:-.2px;
-}
+.summary-item .left{ min-width:0; }
+.summary-item .name{ font-size:12.5px; font-weight:1000; letter-spacing:-.2px; }
+.summary-item .sub{ font-size:12px; color: var(--muted); margin-top:4px; }
+.summary-item .right{ text-align:right; white-space:nowrap; }
+.summary-item .val{ font-size:16px; font-weight:1000; letter-spacing:-.2px; }
 .summary-item .delta{
   margin-top:6px;
   display:inline-flex;
@@ -390,11 +363,9 @@
   font-weight:1000;
   font-size:12px;
 }
-
 .summary-item.pos{ background: rgba(16,185,129,.08); }
 .summary-item.neg{ background: rgba(239,68,68,.07); }
 .summary-item.flat{ background: rgba(148,163,184,.08); }
-
 .summary-item.pos .delta{ color: var(--posText); }
 .summary-item.neg .delta{ color: var(--negText); }
 .summary-item.flat .delta{ color: var(--flatText); }
@@ -431,10 +402,7 @@
   overflow:hidden;
   text-overflow:ellipsis;
 }
-
-.quote-card .qbody{
-  padding:8px 10px 10px;
-}
+.quote-card .qbody{ padding:8px 10px 10px; }
 
 @media (max-width:1100px){
   .summary-item{ grid-column: span 6; }
@@ -444,6 +412,7 @@
   .summary-item{ grid-column: span 12; }
   .quote-card{ grid-column: span 12; }
 }
+
 
   </style>
 </head>
@@ -836,21 +805,19 @@
         </div>
       </div>
 
-      <!-- ✅ 한 화면 요약(우리 데이터 기반) -->
+<!-- ✅ 한 화면 요약(대체): 우리 데이터 3개 + 단일호가 위젯 -->
 <div class="card big">
   <div class="title">
-    <div>한 화면 요약(시장 오버뷰)</div>
-    <div class="right"><span id="summaryUpdated">로딩…</span></div>
+    <div>한 화면 요약(내 데이터 + 단일호가)</div>
+    <div class="right"><span id="summaryUpdated">업데이트: -</span></div>
   </div>
 
   <div class="summary-wrap">
-    <!-- 우리 데이터 요약: KOSPI/KOSDAQ/VIX -->
     <div class="summary-box">
-      <div class="pill ok" style="margin-bottom:8px;">
-        <span class="dot"></span>
-        <span>내 데이터(저장 JSON) 기반 요약</span>
-      </div>
 
+      <div class="pill ok"><span class="dot"></span>내 데이터(저장 JSON) 기반 요약</div>
+
+      <!-- 우리 데이터 3개 -->
       <div class="summary-list">
         <div class="summary-item" id="sumKospi">
           <div class="left">
@@ -886,8 +853,9 @@
         </div>
       </div>
 
-      <!-- TradingView 단일호가(짧은 카드) -->
+      <!-- 단일호가 6개 -->
       <div class="summary-quote-grid">
+
         <div class="quote-card">
           <div class="qtitle">USD/KRW <span>FX_IDC:USDKRW</span></div>
           <div class="qbody">
@@ -995,6 +963,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <div class="note" style="margin-top:12px;">
@@ -1002,6 +971,7 @@
         - 위 3개(KOSPI/KOSDAQ/VIX)는 <code>/data/*.json</code> 기반이라 공란이 생기지 않습니다.<br/>
         - 나머지는 TradingView 단일호가 위젯이라 로딩이 빠르고, 심볼 제한 이슈가 적습니다.
       </div>
+
     </div>
   </div>
 </div>
@@ -1262,21 +1232,19 @@
       
 function setSummaryBox(){
   const updEl = document.getElementById("summaryUpdated");
-  if(!updEl) return;
-
-  const kospi  = STORE.lastMeta.kospi;
+  const kospi = STORE.lastMeta.kospi;
   const kosdaq = STORE.lastMeta.kosdaq;
-  const vix    = STORE.lastMeta.vix;
+  const vix = STORE.lastMeta.vix;
 
   const updated = kospi?.updated || kosdaq?.updated || vix?.updated;
-  updEl.textContent = updated ? `업데이트: ${formatKST(updated)} (KST)` : "업데이트: -";
+  if(updEl) updEl.textContent = updated ? `업데이트: ${formatKST(updated)} (KST)` : "업데이트: -";
 
   function fillOne(prefix, meta){
     const root = document.getElementById(`sum${prefix}`);
     const valEl = document.getElementById(`sum${prefix}Val`);
-    const dEl = document.getElementById(`sum${prefix}Delta`);
+    const dEl   = document.getElementById(`sum${prefix}Delta`);
 
-    // ✅ ID가 없으면 조용히 종료(에러 방지)
+    // 요소가 없으면 조용히 종료(다른 기능까지 죽지 않게)
     if(!root || !valEl || !dEl) return;
 
     if(!meta){
@@ -1298,15 +1266,14 @@ function setSummaryBox(){
     const sign  = chg > 0 ? "+" : chg < 0 ? "-" : "±";
 
     valEl.textContent = Number(last).toLocaleString();
-    dEl.textContent =
-      `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})}` +
-      ` (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
+    dEl.textContent = `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})} (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
   }
 
   fillOne("Kospi", kospi);
   fillOne("Kosdaq", kosdaq);
   fillOne("Vix", vix);
 }
+
 
 
 
@@ -1418,7 +1385,6 @@ function setSummaryBox(){
       // 한 화면 요약 박스(우리 데이터)
       setSummaryBox();
 
-
       // 기간 버튼
       bindRangeButtons();
     });
@@ -1426,6 +1392,7 @@ function setSummaryBox(){
 
 </body>
 </html>
+
 
 
 
