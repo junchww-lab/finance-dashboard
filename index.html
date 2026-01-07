@@ -1216,19 +1216,23 @@
     }
 
     function setSignalPills(){
-      const riskPill = document.getElementById("riskPill");
-      const flowPill = document.getElementById("flowPill");
-      const volPill  = document.getElementById("volPill");
+  const riskPill = document.getElementById("riskPill");
+  const flowPill = document.getElementById("flowPill");
+  const volPill  = document.getElementById("volPill");
 
-      const riskText = document.getElementById("riskText");
-      const flowText = document.getElementById("flowText");
-      const volText  = document.getElementById("volText");
+  const riskText = document.getElementById("riskText");
+  const flowText = document.getElementById("flowText");
+  const volText  = document.getElementById("volText");
 
-      const updEl = document.getElementById("signalUpdated");
+  const updEl = document.getElementById("signalUpdated");
 
-      const kospi = STORE.lastMeta.kospi;
-      const kosdaq = STORE.lastMeta.kosdaq;
-      const vix = STORE.lastMeta.vix;
+  const kospi = STORE.lastMeta.kospi;
+  const kosdaq = STORE.lastMeta.kosdaq;
+  const vix = STORE.lastMeta.vix;
+
+  // ... (원래 시그널 계산 로직이 있으면 여기에)
+}
+
       
 function setSummaryBox(){
   const updEl = document.getElementById("summaryUpdated");
@@ -1243,8 +1247,6 @@ function setSummaryBox(){
     const root = document.getElementById(`sum${prefix}`);
     const valEl = document.getElementById(`sum${prefix}Val`);
     const dEl   = document.getElementById(`sum${prefix}Delta`);
-
-    // 요소가 없으면 조용히 종료(다른 기능까지 죽지 않게)
     if(!root || !valEl || !dEl) return;
 
     if(!meta){
@@ -1266,13 +1268,15 @@ function setSummaryBox(){
     const sign  = chg > 0 ? "+" : chg < 0 ? "-" : "±";
 
     valEl.textContent = Number(last).toLocaleString();
-    dEl.textContent = `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})} (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
+    dEl.textContent =
+      `${arrow} ${sign}${Math.abs(chg).toLocaleString(undefined,{maximumFractionDigits:2})} (${(pct>0?"+":"")}${pct.toFixed(2)}%)`;
   }
 
   fillOne("Kospi", kospi);
   fillOne("Kosdaq", kosdaq);
   fillOne("Vix", vix);
 }
+
 
 
 
@@ -1392,6 +1396,7 @@ function setSummaryBox(){
 
 </body>
 </html>
+
 
 
 
